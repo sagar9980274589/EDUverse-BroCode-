@@ -93,16 +93,16 @@ function App() {
         theme="light"
       />
       <Routes>
-        <Route path="/" element={<ProtectedRoute><Sidebar /></ProtectedRoute>}>
+        {/* <Route path="/" element={<ProtectedRoute><Sidebar /></ProtectedRoute>}>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Myprofile />} />
           <Route path="/chat" element={<Chatpage />} />
           <Route path="/search" element={<SearchPage/>} />
-        </Route>
+        </Route> */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/facialData" element={<GetFacialData/>} />
-        <Route path="/edu" element={<MainPage/>} />
+        <Route path="/" element={<MainPage/>} />
         <Route path="/edu/signup" element={<Signup />} />
         <Route path="/edu/login" element={<EduLogin />} />
         <Route path="/edu/forgot-password" element={<ForgotPassword />} />

@@ -124,7 +124,7 @@ const Navbar = () => {
           <div className="hidden md:flex space-x-4 items-center">
             {/* Primary Navigation - Always visible */}
             <div className="flex space-x-1">
-              <Link to="/edu" className={`px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-indigo-500 transition font-medium ${isScrolled ? "text-gray-700" : "text-white"}`}>
+              <Link to="/" className={`px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-indigo-500 transition font-medium ${isScrolled ? "text-gray-700" : "text-white"}`}>
                 Home
               </Link>
 
