@@ -19,7 +19,9 @@ const router = express.Router();
 // Configure multer for course uploads
 const courseUpload = upload.fields([
   { name: 'courseImage', maxCount: 1 },
-  { name: 'materials', maxCount: 10 } // Allow up to 10 material files
+  { name: 'materials', maxCount: 10 }, // Allow up to 10 material files
+  { name: 'videos', maxCount: 10 }, // Allow up to 10 video files
+  { name: 'contentVideos', maxCount: 20 } // Allow up to 20 content video files
 ]);
 
 // Course creation and management

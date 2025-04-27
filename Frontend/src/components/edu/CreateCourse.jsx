@@ -4,18 +4,18 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Navbar from "./Navbar";
-import { 
-  BookOpen, 
-  Video, 
-  FileText, 
-  Plus, 
-  Trash2, 
-  Save, 
+import {
+  BookOpen,
+  Video,
+  FileText,
+  Plus,
+  Trash2,
+  Save,
   Link as LinkIcon,
-  Youtube,
   List,
   Upload,
-  AlertCircle
+  AlertCircle,
+  Film
 } from "lucide-react";
 
 const CreateCourse = () => {
@@ -25,6 +25,7 @@ const CreateCourse = () => {
   const [courseImage, setCourseImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedVideos, setUploadedVideos] = useState([]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -35,11 +36,11 @@ const CreateCourse = () => {
     price: 0,
     isFree: true,
     videoLinks: [{ title: "", url: "", type: "video" }],
-    sections: [{ 
-      title: "Introduction", 
+    sections: [{
+      title: "Introduction",
       content: [
         { title: "", type: "video", url: "" }
-      ] 
+      ]
     }]
   });
 
@@ -58,13 +59,13 @@ const CreateCourse = () => {
   // Handle input changes for basic course info
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (type === "checkbox") {
       setFormData({
         ...formData,
         [name]: checked
       });
-      
+
       // If making the course free, reset price to 0
       if (name === "isFree" && checked) {
         setFormData({
@@ -100,7 +101,7 @@ const CreateCourse = () => {
   // Handle file upload for course materials
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Create preview for each file
     const newFiles = files.map(file => ({
       file,
@@ -109,28 +110,66 @@ const CreateCourse = () => {
       type: file.type,
       preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
     }));
-    
+
     setUploadedFiles([...uploadedFiles, ...newFiles]);
   };
 
   // Remove uploaded file
   const removeFile = (index) => {
     const newFiles = [...uploadedFiles];
-    
+
     // Revoke object URL to prevent memory leaks
     if (newFiles[index].preview) {
       URL.revokeObjectURL(newFiles[index].preview);
     }
-    
+
     newFiles.splice(index, 1);
     setUploadedFiles(newFiles);
+  };
+
+  // Handle video upload
+  const handleVideoUpload = (e) => {
+    const files = Array.from(e.target.files);
+
+    // Filter only video files
+    const videoFiles = files.filter(file => file.type.startsWith('video/'));
+
+    if (videoFiles.length === 0) {
+      toast.error("Please select valid video files");
+      return;
+    }
+
+    // Create preview for each video file
+    const newVideos = videoFiles.map(file => ({
+      file,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      title: file.name.split('.')[0], // Use filename as default title
+      url: URL.createObjectURL(file), // Create a temporary URL for preview
+    }));
+
+    setUploadedVideos([...uploadedVideos, ...newVideos]);
+  };
+
+  // Remove uploaded video
+  const removeVideo = (index) => {
+    const newVideos = [...uploadedVideos];
+
+    // Revoke object URL to prevent memory leaks
+    if (newVideos[index].url) {
+      URL.revokeObjectURL(newVideos[index].url);
+    }
+
+    newVideos.splice(index, 1);
+    setUploadedVideos(newVideos);
   };
 
   // Handle video link changes
   const handleVideoLinkChange = (index, field, value) => {
     const updatedLinks = [...formData.videoLinks];
     updatedLinks[index] = { ...updatedLinks[index], [field]: value };
-    
+
     setFormData({
       ...formData,
       videoLinks: updatedLinks
@@ -149,7 +188,7 @@ const CreateCourse = () => {
   const removeVideoLink = (index) => {
     const updatedLinks = [...formData.videoLinks];
     updatedLinks.splice(index, 1);
-    
+
     setFormData({
       ...formData,
       videoLinks: updatedLinks
@@ -159,11 +198,11 @@ const CreateCourse = () => {
   // Handle section changes
   const handleSectionChange = (sectionIndex, field, value) => {
     const updatedSections = [...formData.sections];
-    updatedSections[sectionIndex] = { 
-      ...updatedSections[sectionIndex], 
-      [field]: value 
+    updatedSections[sectionIndex] = {
+      ...updatedSections[sectionIndex],
+      [field]: value
     };
-    
+
     setFormData({
       ...formData,
       sections: updatedSections
@@ -175,10 +214,10 @@ const CreateCourse = () => {
     setFormData({
       ...formData,
       sections: [
-        ...formData.sections, 
-        { 
-          title: `Section ${formData.sections.length + 1}`, 
-          content: [{ title: "", type: "video", url: "" }] 
+        ...formData.sections,
+        {
+          title: `Section ${formData.sections.length + 1}`,
+          content: [{ title: "", type: "video", url: "" }]
         }
       ]
     });
@@ -190,10 +229,10 @@ const CreateCourse = () => {
       toast.warning("Course must have at least one section");
       return;
     }
-    
+
     const updatedSections = [...formData.sections];
     updatedSections.splice(index, 1);
-    
+
     setFormData({
       ...formData,
       sections: updatedSections
@@ -203,11 +242,32 @@ const CreateCourse = () => {
   // Handle section content changes
   const handleContentChange = (sectionIndex, contentIndex, field, value) => {
     const updatedSections = [...formData.sections];
-    updatedSections[sectionIndex].content[contentIndex] = { 
-      ...updatedSections[sectionIndex].content[contentIndex], 
-      [field]: value 
+    const currentContent = updatedSections[sectionIndex].content[contentIndex];
+
+    // Special handling for type changes
+    if (field === "type") {
+      // If changing to "uploaded", initialize videoFile property
+      if (value === "uploaded" && !currentContent.videoFile) {
+        currentContent.videoFile = null;
+      }
+
+      // If changing from "uploaded" to something else, clean up videoFile property
+      if (currentContent.type === "uploaded" && value !== "uploaded") {
+        // Revoke any object URLs to prevent memory leaks
+        if (currentContent.url && currentContent.url.startsWith("blob:")) {
+          URL.revokeObjectURL(currentContent.url);
+        }
+        delete currentContent.videoFile;
+        currentContent.url = "";
+      }
+    }
+
+    // Update the field
+    updatedSections[sectionIndex].content[contentIndex] = {
+      ...currentContent,
+      [field]: value
     };
-    
+
     setFormData({
       ...formData,
       sections: updatedSections
@@ -217,12 +277,19 @@ const CreateCourse = () => {
   // Add content item to section
   const addContentItem = (sectionIndex, type = "video") => {
     const updatedSections = [...formData.sections];
-    updatedSections[sectionIndex].content.push({ 
-      title: "", 
-      type, 
-      url: "" 
-    });
-    
+    const newContentItem = {
+      title: "",
+      type,
+      url: ""
+    };
+
+    // Add videoFile property for uploaded videos
+    if (type === "uploaded") {
+      newContentItem.videoFile = null;
+    }
+
+    updatedSections[sectionIndex].content.push(newContentItem);
+
     setFormData({
       ...formData,
       sections: updatedSections
@@ -235,10 +302,17 @@ const CreateCourse = () => {
       toast.warning("Section must have at least one content item");
       return;
     }
-    
+
     const updatedSections = [...formData.sections];
+    const contentToRemove = updatedSections[sectionIndex].content[contentIndex];
+
+    // Clean up any blob URLs for uploaded videos
+    if (contentToRemove.type === "uploaded" && contentToRemove.url && contentToRemove.url.startsWith("blob:")) {
+      URL.revokeObjectURL(contentToRemove.url);
+    }
+
     updatedSections[sectionIndex].content.splice(contentIndex, 1);
-    
+
     setFormData({
       ...formData,
       sections: updatedSections
@@ -311,24 +385,50 @@ const CreateCourse = () => {
           setLoading(false);
           return;
         }
+
+        // Skip URL validation for uploaded videos
+        if (content.type === "uploaded") {
+          // URL will be set after upload
+          continue;
+        }
       }
     }
 
     try {
       // Create form data for multipart/form-data (for image and file uploads)
       const data = new FormData();
-      
+
       // Add course image if selected
       if (courseImage) {
         data.append("courseImage", courseImage);
       }
-      
+
       // Add course materials
-      uploadedFiles.forEach((fileObj, index) => {
+      uploadedFiles.forEach((fileObj) => {
         data.append(`materials`, fileObj.file);
         data.append(`materialNames`, fileObj.name);
       });
-      
+
+      // Add uploaded videos from the video upload section
+      uploadedVideos.forEach((videoObj) => {
+        data.append(`videos`, videoObj.file);
+        data.append(`videoTitles`, videoObj.title);
+      });
+
+      // Add uploaded videos from course content sections
+      let contentVideoIndex = 0;
+      formData.sections.forEach((section, sectionIndex) => {
+        section.content.forEach((content, contentIndex) => {
+          if (content.type === "uploaded" && content.videoFile) {
+            data.append(`contentVideos`, content.videoFile);
+            data.append(`contentVideoTitles`, content.title);
+            data.append(`contentVideoSectionIndexes`, sectionIndex);
+            data.append(`contentVideoContentIndexes`, contentIndex);
+            contentVideoIndex++;
+          }
+        });
+      });
+
       // Add other form fields
       data.append("title", formData.title);
       data.append("description", formData.description);
@@ -337,14 +437,14 @@ const CreateCourse = () => {
       data.append("isFree", formData.isFree);
       data.append("price", formData.price);
       data.append("mentorId", user._id);
-      
+
       // Add video links and sections as JSON strings
       data.append("videoLinks", JSON.stringify(formData.videoLinks));
       data.append("sections", JSON.stringify(formData.sections));
 
       // Get token from localStorage
       const token = localStorage.getItem("token");
-      
+
       // Make API request to create course
       const response = await axios.post(
         "http://localhost:3000/course/create",
@@ -365,7 +465,30 @@ const CreateCourse = () => {
       }
     } catch (error) {
       console.error("Error creating course:", error);
-      toast.error(error.response?.data?.message || "An error occurred while creating the course");
+
+      // Log more detailed error information
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
+      } else if (error.request) {
+        console.error("Request:", error.request);
+      } else {
+        console.error("Error message:", error.message);
+      }
+
+      // Show a more detailed error message
+      let errorMessage = "An error occurred while creating the course";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -374,7 +497,7 @@ const CreateCourse = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       <div className="pt-28 pb-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-md overflow-hidden p-8">
@@ -382,7 +505,7 @@ const CreateCourse = () => {
               <BookOpen className="text-indigo-600 mr-3" size={28} />
               <h1 className="text-2xl font-bold text-gray-800">Create New Course</h1>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Course Image */}
               <div className="mb-8">
@@ -390,9 +513,9 @@ const CreateCourse = () => {
                 <div className="flex items-center space-x-6">
                   <div className="w-40 h-24 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
                     {previewImage ? (
-                      <img 
-                        src={previewImage} 
-                        alt="Course thumbnail" 
+                      <img
+                        src={previewImage}
+                        alt="Course thumbnail"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -404,10 +527,10 @@ const CreateCourse = () => {
                   <div>
                     <label className="cursor-pointer bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
                       <span>Upload Image</span>
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        accept="image/*" 
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
                         onChange={handleImageChange}
                       />
                     </label>
@@ -417,7 +540,7 @@ const CreateCourse = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Basic Course Info */}
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="col-span-2">
@@ -435,7 +558,7 @@ const CreateCourse = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="col-span-2">
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                     Course Description*
@@ -451,7 +574,7 @@ const CreateCourse = () => {
                     required
                   ></textarea>
                 </div>
-                
+
                 <div>
                   <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                     Category*
@@ -473,7 +596,7 @@ const CreateCourse = () => {
                     <option value="other">Other</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label htmlFor="level" className="block text-sm font-medium text-gray-700 mb-1">
                     Difficulty Level
@@ -491,7 +614,7 @@ const CreateCourse = () => {
                     <option value="all">All Levels</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <div className="flex items-center mb-2">
                     <input
@@ -506,7 +629,7 @@ const CreateCourse = () => {
                       This is a free course
                     </label>
                   </div>
-                  
+
                   {!formData.isFree && (
                     <div>
                       <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
@@ -526,22 +649,22 @@ const CreateCourse = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Course Materials */}
               <div>
                 <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
                   <FileText className="mr-2" size={20} />
                   Course Materials
                 </h3>
-                
+
                 <div className="mb-4">
                   <label className="cursor-pointer inline-flex items-center bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
                     <Upload className="mr-2" size={16} />
                     <span>Upload Files</span>
-                    <input 
-                      type="file" 
-                      className="hidden" 
-                      multiple 
+                    <input
+                      type="file"
+                      className="hidden"
+                      multiple
                       onChange={handleFileUpload}
                     />
                   </label>
@@ -549,7 +672,7 @@ const CreateCourse = () => {
                     Upload PDFs, documents, or other resources for your students
                   </p>
                 </div>
-                
+
                 {uploadedFiles.length > 0 && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <h4 className="text-sm font-medium text-gray-700 mb-2">Uploaded Files</h4>
@@ -573,14 +696,96 @@ const CreateCourse = () => {
                   </div>
                 )}
               </div>
-              
-              {/* Video Links */}
+
+              {/* Video Upload */}
               <div>
                 <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
-                  <Youtube className="mr-2" size={20} />
-                  Video Links
+                  <Video className="mr-2" size={20} />
+                  Upload Videos
                 </h3>
-                
+
+                <div className="mb-6 space-y-4">
+                  <div className="border-dashed border-2 border-gray-300 rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      id="video-upload"
+                      accept="video/*"
+                      onChange={handleVideoUpload}
+                      className="hidden"
+                      multiple
+                    />
+                    <label
+                      htmlFor="video-upload"
+                      className="cursor-pointer flex flex-col items-center justify-center"
+                    >
+                      <Film size={40} className="text-gray-400 mb-2" />
+                      <span className="text-sm font-medium text-gray-700">
+                        Drag and drop videos here or click to browse
+                      </span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        Supported formats: MP4, WebM, MOV (Max 100MB)
+                      </span>
+                      <button
+                        type="button"
+                        className="mt-4 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none"
+                      >
+                        Select Videos
+                      </button>
+                    </label>
+                  </div>
+
+                  {/* Display uploaded videos */}
+                  {uploadedVideos.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Uploaded Videos:</h4>
+                      <ul className="space-y-3">
+                        {uploadedVideos.map((video, index) => (
+                          <li key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center">
+                              <Film size={18} className="text-indigo-500 mr-2" />
+                              <div>
+                                <div className="flex items-center">
+                                  <input
+                                    type="text"
+                                    value={video.title}
+                                    onChange={(e) => {
+                                      const newVideos = [...uploadedVideos];
+                                      newVideos[index].title = e.target.value;
+                                      setUploadedVideos(newVideos);
+                                    }}
+                                    placeholder="Video Title"
+                                    className="text-sm font-medium border-0 bg-transparent focus:ring-0 p-0 w-full"
+                                  />
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {(video.size / (1024 * 1024)).toFixed(2)} MB
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button
+                                type="button"
+                                onClick={() => removeVideo(index)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* YouTube Video Links */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
+                  <Video className="mr-2" size={20} />
+                  YouTube Video Links
+                </h3>
+
                 <div className="space-y-4">
                   {formData.videoLinks.map((link, index) => (
                     <div key={index} className="flex items-start space-x-2">
@@ -602,7 +807,7 @@ const CreateCourse = () => {
                             placeholder="YouTube URL"
                             className="w-full px-3 py-2 pl-9 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                           />
-                          <Youtube className="absolute left-3 top-2.5 text-gray-400" size={16} />
+                          <Video className="absolute left-3 top-2.5 text-gray-400" size={16} />
                         </div>
                       </div>
                       <button
@@ -615,25 +820,25 @@ const CreateCourse = () => {
                       </button>
                     </div>
                   ))}
-                  
+
                   <button
                     type="button"
                     onClick={addVideoLink}
                     className="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800"
                   >
                     <Plus size={16} className="mr-1" />
-                    Add Video Link
+                    Add YouTube Link
                   </button>
                 </div>
               </div>
-              
+
               {/* Course Sections */}
               <div>
                 <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
                   <List className="mr-2" size={20} />
                   Course Content
                 </h3>
-                
+
                 <div className="space-y-6">
                   {formData.sections.map((section, sectionIndex) => (
                     <div key={sectionIndex} className="border border-gray-200 rounded-lg p-4">
@@ -654,7 +859,7 @@ const CreateCourse = () => {
                           <Trash2 size={18} />
                         </button>
                       </div>
-                      
+
                       <div className="space-y-3 pl-4 border-l-2 border-gray-200">
                         {section.content.map((content, contentIndex) => (
                           <div key={contentIndex} className="flex items-start space-x-2">
@@ -668,24 +873,53 @@ const CreateCourse = () => {
                                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 />
                               </div>
-                              <div className="md:col-span-2 relative">
-                                <input
-                                  type="text"
-                                  value={content.url}
-                                  onChange={(e) => handleContentChange(sectionIndex, contentIndex, "url", e.target.value)}
-                                  placeholder="YouTube URL"
-                                  className="w-full px-3 py-2 pl-9 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                />
-                                <Youtube className="absolute left-3 top-2.5 text-gray-400" size={16} />
-                              </div>
+                              {content.type === "uploaded" ? (
+                                <div className="md:col-span-2">
+                                  <div className="flex items-center">
+                                    <label className="cursor-pointer flex items-center justify-between w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+                                      <div className="flex items-center">
+                                        <Film className="text-gray-400 mr-2" size={16} />
+                                        <span>{content.videoFile ? content.videoFile.name : "Select video file"}</span>
+                                      </div>
+                                      <input
+                                        type="file"
+                                        accept="video/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                          const file = e.target.files[0];
+                                          if (file) {
+                                            // Update content with the selected file
+                                            handleContentChange(sectionIndex, contentIndex, "videoFile", file);
+                                            // Set a temporary URL for preview
+                                            handleContentChange(sectionIndex, contentIndex, "url", URL.createObjectURL(file));
+                                          }
+                                        }}
+                                      />
+                                      <Upload size={16} className="text-gray-500" />
+                                    </label>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="md:col-span-2 relative">
+                                  <input
+                                    type="text"
+                                    value={content.url}
+                                    onChange={(e) => handleContentChange(sectionIndex, contentIndex, "url", e.target.value)}
+                                    placeholder="YouTube URL"
+                                    className="w-full px-3 py-2 pl-9 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                  />
+                                  <Video className="absolute left-3 top-2.5 text-gray-400" size={16} />
+                                </div>
+                              )}
                               <div>
                                 <select
                                   value={content.type}
                                   onChange={(e) => handleContentChange(sectionIndex, contentIndex, "type", e.target.value)}
                                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 >
-                                  <option value="video">Video</option>
-                                  <option value="playlist">Playlist</option>
+                                  <option value="video">YouTube Video</option>
+                                  <option value="playlist">YouTube Playlist</option>
+                                  <option value="uploaded">Uploaded Video</option>
                                 </select>
                               </div>
                             </div>
@@ -699,7 +933,7 @@ const CreateCourse = () => {
                             </button>
                           </div>
                         ))}
-                        
+
                         <div className="flex space-x-2 mt-2">
                           <button
                             type="button"
@@ -707,7 +941,7 @@ const CreateCourse = () => {
                             className="inline-flex items-center text-xs text-indigo-600 hover:text-indigo-800"
                           >
                             <Plus size={14} className="mr-1" />
-                            Add Video
+                            Add YouTube Video
                           </button>
                           <button
                             type="button"
@@ -715,13 +949,21 @@ const CreateCourse = () => {
                             className="inline-flex items-center text-xs text-indigo-600 hover:text-indigo-800"
                           >
                             <Plus size={14} className="mr-1" />
-                            Add Playlist
+                            Add YouTube Playlist
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => addContentItem(sectionIndex, "uploaded")}
+                            className="inline-flex items-center text-xs text-indigo-600 hover:text-indigo-800"
+                          >
+                            <Plus size={14} className="mr-1" />
+                            Add Uploaded Video
                           </button>
                         </div>
                       </div>
                     </div>
                   ))}
-                  
+
                   <button
                     type="button"
                     onClick={addSection}
@@ -732,7 +974,7 @@ const CreateCourse = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Submit Button */}
               <div className="flex justify-end pt-4 border-t border-gray-200">
                 <button

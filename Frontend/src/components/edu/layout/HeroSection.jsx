@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, BookOpen, Users, Award, Clock } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Award, Clock, Code } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const HeroSection = () => {
@@ -19,8 +19,12 @@ const HeroSection = () => {
                 Unlock Your Potential with <span className="text-indigo-300">EDUverse</span>
               </h1>
               <p className="mt-6 text-xl text-indigo-100 max-w-2xl">
-                Discover a world of knowledge with our comprehensive courses taught by industry experts.
-                Learn at your own pace and take your skills to the next level.
+                Welcome to EduVerse!
+                The multiverse of Education 
+
+
+                {/* Discover a world of knowledge with our comprehensive courses taught by industry experts.
+                Learn at your own pace and take your skills to the next level. */}
               </p>
             </div>
 
@@ -30,6 +34,12 @@ const HeroSection = () => {
                 className="bg-white text-indigo-700 hover:bg-indigo-50 px-6 py-3 rounded-lg font-semibold flex items-center transition"
               >
                 Explore Courses <ArrowRight size={18} className="ml-2" />
+              </Link>
+              <Link
+                to="/edu/coding"
+                className="bg-green-500 text-white hover:bg-green-600 px-6 py-3 rounded-lg font-semibold flex items-center transition"
+              >
+                Coding Challenges <Code size={18} className="ml-2" />
               </Link>
               <Link
                 to="/edu/social"

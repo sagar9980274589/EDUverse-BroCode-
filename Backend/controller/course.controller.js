@@ -130,6 +130,85 @@ export const createCourse = async (req, res) => {
       courseData.materials = materials;
     }
 
+    // Handle uploaded videos if provided
+    if (req.files && req.files.videos && req.files.videos.length > 0) {
+      console.log("Processing videos:", req.files.videos.length, "files");
+
+      const videoTitles = req.body.videoTitles
+        ? (Array.isArray(req.body.videoTitles)
+            ? req.body.videoTitles
+            : [req.body.videoTitles])
+        : [];
+
+      const videos = [];
+
+      for (let i = 0; i < req.files.videos.length; i++) {
+        const file = req.files.videos[i];
+        console.log("Processing video file:", file.originalname);
+
+        try {
+          const fileUrl = await uploadToCloudinary(file.path);
+          videos.push({
+            title: videoTitles[i] || file.originalname,
+            url: fileUrl,
+            type: "uploaded"
+          });
+          console.log("Video uploaded:", fileUrl);
+        } catch (videoError) {
+          console.error("Error uploading video:", videoError);
+          // Continue with the next file
+        }
+      }
+
+      // Add uploaded videos to videoLinks
+      courseData.videoLinks = [...courseData.videoLinks, ...videos];
+    }
+
+    // Handle content videos if provided
+    if (req.files && req.files.contentVideos && req.files.contentVideos.length > 0) {
+      console.log("Processing content videos:", req.files.contentVideos.length, "files");
+
+      const contentVideoTitles = req.body.contentVideoTitles
+        ? (Array.isArray(req.body.contentVideoTitles)
+            ? req.body.contentVideoTitles
+            : [req.body.contentVideoTitles])
+        : [];
+
+      const contentVideoSectionIndexes = req.body.contentVideoSectionIndexes
+        ? (Array.isArray(req.body.contentVideoSectionIndexes)
+            ? req.body.contentVideoSectionIndexes
+            : [req.body.contentVideoSectionIndexes])
+        : [];
+
+      const contentVideoContentIndexes = req.body.contentVideoContentIndexes
+        ? (Array.isArray(req.body.contentVideoContentIndexes)
+            ? req.body.contentVideoContentIndexes
+            : [req.body.contentVideoContentIndexes])
+        : [];
+
+      for (let i = 0; i < req.files.contentVideos.length; i++) {
+        const file = req.files.contentVideos[i];
+        console.log("Processing content video file:", file.originalname);
+
+        try {
+          const fileUrl = await uploadToCloudinary(file.path);
+          const sectionIndex = parseInt(contentVideoSectionIndexes[i]);
+          const contentIndex = parseInt(contentVideoContentIndexes[i]);
+
+          // Make sure the section and content exist
+          if (courseData.sections[sectionIndex] && courseData.sections[sectionIndex].content[contentIndex]) {
+            // Update the content with the uploaded video URL
+            courseData.sections[sectionIndex].content[contentIndex].url = fileUrl;
+            courseData.sections[sectionIndex].content[contentIndex].title = contentVideoTitles[i] || file.originalname;
+            console.log("Content video uploaded:", fileUrl);
+          }
+        } catch (videoError) {
+          console.error("Error uploading content video:", videoError);
+          // Continue with the next file
+        }
+      }
+    }
+
     // Create the course
     const newCourse = await Course.create(courseData);
 
@@ -146,6 +225,19 @@ export const createCourse = async (req, res) => {
   } catch (error) {
     console.error("Error creating course:", error);
     console.error("Error stack:", error.stack);
+
+    // Log more detailed information
+    console.error("Request body:", req.body);
+    console.error("Request files:", req.files ? Object.keys(req.files) : "No files");
+
+    if (req.files && req.files.videos) {
+      console.error("Videos count:", req.files.videos.length);
+    }
+
+    if (req.files && req.files.contentVideos) {
+      console.error("Content videos count:", req.files.contentVideos.length);
+    }
+
     return res.status(500).json({
       success: false,
       message: "An error occurred while creating the course",
@@ -381,6 +473,85 @@ export const updateCourse = async (req, res) => {
       }
 
       courseData.materials = materials;
+    }
+
+    // Handle uploaded videos if provided
+    if (req.files && req.files.videos && req.files.videos.length > 0) {
+      console.log("Processing videos:", req.files.videos.length, "files");
+
+      const videoTitles = req.body.videoTitles
+        ? (Array.isArray(req.body.videoTitles)
+            ? req.body.videoTitles
+            : [req.body.videoTitles])
+        : [];
+
+      const videos = [];
+
+      for (let i = 0; i < req.files.videos.length; i++) {
+        const file = req.files.videos[i];
+        console.log("Processing video file:", file.originalname);
+
+        try {
+          const fileUrl = await uploadToCloudinary(file.path);
+          videos.push({
+            title: videoTitles[i] || file.originalname,
+            url: fileUrl,
+            type: "uploaded"
+          });
+          console.log("Video uploaded:", fileUrl);
+        } catch (videoError) {
+          console.error("Error uploading video:", videoError);
+          // Continue with the next file
+        }
+      }
+
+      // Add uploaded videos to videoLinks
+      courseData.videoLinks = [...courseData.videoLinks, ...videos];
+    }
+
+    // Handle content videos if provided
+    if (req.files && req.files.contentVideos && req.files.contentVideos.length > 0) {
+      console.log("Processing content videos:", req.files.contentVideos.length, "files");
+
+      const contentVideoTitles = req.body.contentVideoTitles
+        ? (Array.isArray(req.body.contentVideoTitles)
+            ? req.body.contentVideoTitles
+            : [req.body.contentVideoTitles])
+        : [];
+
+      const contentVideoSectionIndexes = req.body.contentVideoSectionIndexes
+        ? (Array.isArray(req.body.contentVideoSectionIndexes)
+            ? req.body.contentVideoSectionIndexes
+            : [req.body.contentVideoSectionIndexes])
+        : [];
+
+      const contentVideoContentIndexes = req.body.contentVideoContentIndexes
+        ? (Array.isArray(req.body.contentVideoContentIndexes)
+            ? req.body.contentVideoContentIndexes
+            : [req.body.contentVideoContentIndexes])
+        : [];
+
+      for (let i = 0; i < req.files.contentVideos.length; i++) {
+        const file = req.files.contentVideos[i];
+        console.log("Processing content video file:", file.originalname);
+
+        try {
+          const fileUrl = await uploadToCloudinary(file.path);
+          const sectionIndex = parseInt(contentVideoSectionIndexes[i]);
+          const contentIndex = parseInt(contentVideoContentIndexes[i]);
+
+          // Make sure the section and content exist
+          if (courseData.sections[sectionIndex] && courseData.sections[sectionIndex].content[contentIndex]) {
+            // Update the content with the uploaded video URL
+            courseData.sections[sectionIndex].content[contentIndex].url = fileUrl;
+            courseData.sections[sectionIndex].content[contentIndex].title = contentVideoTitles[i] || file.originalname;
+            console.log("Content video uploaded:", fileUrl);
+          }
+        } catch (videoError) {
+          console.error("Error uploading content video:", videoError);
+          // Continue with the next file
+        }
+      }
     }
 
     // Update the course

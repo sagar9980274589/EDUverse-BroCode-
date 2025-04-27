@@ -5,15 +5,13 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Navbar from "../layout/Navbar";
 import CourseChat from "./CourseChat";
+import VideoModal from "./VideoModal";
 import {
   BookOpen,
   User,
-  Clock,
-  Award,
   FileText,
   Download,
   Play,
-  Youtube,
   List,
   ChevronDown,
   ChevronUp,
@@ -21,7 +19,8 @@ import {
   DollarSign,
   CheckCircle,
   AlertCircle,
-  ExternalLink
+  Film,
+  Video
 } from "lucide-react";
 
 const CourseView = () => {
@@ -32,10 +31,11 @@ const CourseView = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeSection, setActiveSection] = useState(0);
   const [expandedSections, setExpandedSections] = useState({});
   const [enrolling, setEnrolling] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Fetch course data
   useEffect(() => {
@@ -192,6 +192,13 @@ const CourseView = () => {
     return null;
   };
 
+  // Check if URL is a YouTube URL
+  const isYoutubeUrl = (url) => {
+    if (!url) return false;
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+    return youtubeRegex.test(url);
+  };
+
   // Render loading state
   if (loading) {
     return (
@@ -261,6 +268,17 @@ const CourseView = () => {
           courseId={courseId}
           courseName={course.title}
           mentor={course.mentor}
+        />
+      )}
+
+      {/* Video Modal */}
+      {showVideoModal && selectedVideo && (
+        <VideoModal
+          video={selectedVideo}
+          onClose={() => {
+            setShowVideoModal(false);
+            setSelectedVideo(null);
+          }}
         />
       )}
 
@@ -435,22 +453,47 @@ const CourseView = () => {
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
                   <div className="p-6">
                     <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                      <Youtube className="mr-2 text-red-600" size={24} />
+                      <Video className="mr-2 text-indigo-600" size={24} />
                       Course Videos
                     </h2>
 
                     <div className="space-y-4">
                       {course.videoLinks.map((video, index) => (
                         <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
-                          {(isEnrolled() || isMentor()) && getYoutubeEmbedUrl(video.url) ? (
-                            <div className="aspect-w-16 aspect-h-9">
-                              <iframe
-                                src={getYoutubeEmbedUrl(video.url)}
-                                title={video.title}
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                className="w-full h-full"
-                              ></iframe>
+                          {(isEnrolled() || isMentor()) ? (
+                            <div
+                              className="aspect-w-16 aspect-h-9 bg-gray-100 cursor-pointer relative group"
+                              onClick={() => {
+                                setSelectedVideo(video);
+                                setShowVideoModal(true);
+                              }}
+                            >
+                              {video.type === "uploaded" || !isYoutubeUrl(video.url) ? (
+                                // Uploaded video or direct video URL thumbnail
+                                <div className="w-full h-full flex items-center justify-center bg-black">
+                                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
+                                  <Film className="text-white opacity-80 group-hover:opacity-100 transition-opacity" size={48} />
+                                  <div className="absolute bottom-4 left-4 text-white">
+                                    <h3 className="font-medium">{video.title}</h3>
+                                  </div>
+                                </div>
+                              ) : (
+                                // YouTube video thumbnail
+                                <>
+                                  <iframe
+                                    src={getYoutubeEmbedUrl(video.url)}
+                                    title={video.title}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    className="w-full h-full pointer-events-none"
+                                  ></iframe>
+                                  <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                    <div className="bg-white/20 rounded-full p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Play size={32} className="text-white" />
+                                    </div>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           ) : (
                             <div className="aspect-w-16 aspect-h-9 bg-gray-100 flex items-center justify-center">
@@ -467,15 +510,16 @@ const CourseView = () => {
                           <div className="p-4 bg-gray-50">
                             <h3 className="font-medium text-gray-800">{video.title}</h3>
                             {(isEnrolled() || isMentor()) && (
-                              <a
-                                href={video.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                              <button
+                                onClick={() => {
+                                  setSelectedVideo(video);
+                                  setShowVideoModal(true);
+                                }}
                                 className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center mt-1"
                               >
-                                <ExternalLink size={14} className="mr-1" />
-                                Open on YouTube
-                              </a>
+                                <Play size={14} className="mr-1" />
+                                Watch Video
+                              </button>
                             )}
                           </div>
                         </div>
@@ -513,24 +557,27 @@ const CourseView = () => {
                             <div className="p-4 space-y-3">
                               {section.content.map((content, contentIndex) => (
                                 <div key={contentIndex} className="flex items-start p-2 hover:bg-gray-50 rounded">
-                                  {content.type === "video" ? (
+                                  {content.type === "uploaded" || !isYoutubeUrl(content.url) ? (
+                                    <Film size={18} className="text-indigo-600 mr-3 mt-0.5" />
+                                  ) : content.type === "video" ? (
                                     <Play size={18} className="text-red-500 mr-3 mt-0.5" />
                                   ) : (
-                                    <Youtube size={18} className="text-red-500 mr-3 mt-0.5" />
+                                    <Video size={18} className="text-red-500 mr-3 mt-0.5" />
                                   )}
 
                                   <div>
                                     <h4 className="font-medium text-gray-800">{content.title}</h4>
                                     {(isEnrolled() || isMentor()) && (
-                                      <a
-                                        href={content.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                      <button
+                                        onClick={() => {
+                                          setSelectedVideo(content);
+                                          setShowVideoModal(true);
+                                        }}
                                         className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center mt-1"
                                       >
-                                        <ExternalLink size={14} className="mr-1" />
-                                        Open on YouTube
-                                      </a>
+                                        <Play size={14} className="mr-1" />
+                                        Watch Video
+                                      </button>
                                     )}
                                   </div>
                                 </div>

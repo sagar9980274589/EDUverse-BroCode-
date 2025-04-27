@@ -31,7 +31,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB max file size
+    fileSize: 100 * 1024 * 1024, // 100MB max file size for videos
   },
   fileFilter: function (req, file, cb) {
     // Accept images, videos, PDFs, and common document formats
@@ -98,11 +98,28 @@ const uploadToCloudinary = async (filePath) => {
         const stats = fs.statSync(processedPath);
         console.log("File size:", stats.size, "bytes");
 
-        // Upload to Cloudinary with resource type auto to handle different file types
-        const result = await cloudinary.uploader.upload(processedPath, {
+        // Get file extension to determine if it's a video
+        const fileExt = processedPath.split('.').pop().toLowerCase();
+        const isVideo = ['mp4', 'mov', 'avi', 'webm', 'mkv'].includes(fileExt);
+
+        // Set upload options based on file type
+        const uploadOptions = {
             resource_type: "auto",
             folder: 'eduverse'
-        });
+        };
+
+        // For videos, add specific options
+        if (isVideo) {
+            console.log("Uploading video file with extension:", fileExt);
+            uploadOptions.resource_type = "video";
+            // Add chunked upload for large files
+            uploadOptions.chunk_size = 6000000; // 6MB chunks
+        }
+
+        console.log("Upload options:", uploadOptions);
+
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(processedPath, uploadOptions);
 
         console.log("Cloudinary upload result:", result);
 
@@ -125,6 +142,10 @@ const uploadToCloudinary = async (filePath) => {
         return result.secure_url;
     } catch (error) {
         console.error("Error in uploadToCloudinary:", error);
+        console.error("Error details:", error.message);
+        if (error.http_code) {
+            console.error("HTTP code:", error.http_code);
+        }
         throw error;
     }
 };

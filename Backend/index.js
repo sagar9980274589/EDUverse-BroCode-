@@ -27,12 +27,14 @@ import courseRoute from './route/course.route.js';
 import courseMessageRoute from './route/courseMessage.route.js';
 import passwordRoute from './route/password.route.js';
 import commentRoute from './route/comment.route.js';
+import codingChallengeRoute from './route/coding_challenge.route.js';
 
 app.use('/user', userRoute);
 app.use('/course', courseRoute);
 app.use('/course', courseMessageRoute);
 app.use('/password', passwordRoute);
 app.use('/comment', commentRoute);
+app.use('/coding', codingChallengeRoute);
 
 // Root route for testing
 app.get('/', (req, res) => {

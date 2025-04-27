@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, BookOpen, Users, Award, Clock } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Award, Clock, Code } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const HeroSection = () => {
@@ -30,6 +30,12 @@ const HeroSection = () => {
                 className="bg-white text-indigo-700 hover:bg-indigo-50 px-6 py-3 rounded-lg font-semibold flex items-center transition"
               >
                 Explore Courses <ArrowRight size={18} className="ml-2" />
+              </Link>
+              <Link
+                to="/edu/coding"
+                className="bg-green-500 text-white hover:bg-green-600 px-6 py-3 rounded-lg font-semibold flex items-center transition"
+              >
+                Coding Challenges <Code size={18} className="ml-2" />
               </Link>
               <Link
                 to="/edu/social"

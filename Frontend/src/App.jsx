@@ -33,6 +33,8 @@ import ForgotPassword from "./components/edu/ForgotPassword";
 import StudentProfile from "./components/edu/StudentProfile";
 import EduSocialHub from "./components/edu/EduSocialHub";
 import PostDetail from "./components/edu/PostDetail";
+import CodingDashboard from "./components/edu/coding/CodingDashboard";
+import ChallengeDetail from "./components/edu/coding/ChallengeDetail";
 
 function App() {
   const dispatch = useDispatch();
@@ -135,6 +137,9 @@ function App() {
         <Route path="/mentor/:mentorId" element={<MentorProfilePage />} />
         <Route path="/social" element={<EduProtectedRoute><EduSocialHub /></EduProtectedRoute>} />
         <Route path="/post/:postId" element={<EduProtectedRoute><PostDetail /></EduProtectedRoute>} />
+        <Route path="/coding" element={<CodingDashboard />} />
+        <Route path="/coding/daily" element={<CodingDashboard />} />
+        <Route path="/coding/leaderboard" element={<CodingDashboard />} />
 
         {/* Legacy routes */}
         <Route path="/edu/profile" element={<EduProtectedRoute><StudentProfile /></EduProtectedRoute>} />
@@ -148,6 +153,11 @@ function App() {
         <Route path="/edu/mentor/:mentorId" element={<MentorProfilePage />} />
         <Route path="/edu/social" element={<EduProtectedRoute><EduSocialHub /></EduProtectedRoute>} />
         <Route path="/edu/post/:postId" element={<EduProtectedRoute><PostDetail /></EduProtectedRoute>} />
+        <Route path="/edu/coding" element={<CodingDashboard />} />
+        <Route path="/edu/coding/daily" element={<CodingDashboard />} />
+        <Route path="/edu/coding/leaderboard" element={<CodingDashboard />} />
+        <Route path="/edu/coding/challenge/:challengeId" element={<ChallengeDetail />} />
+        <Route path="/edu/coding/daily-challenge" element={<ChallengeDetail />} />
       </Routes>
 
       {/* Show floating chatbot only on educational platform routes */}

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, BookOpen, HelpCircle } from "lucide-react";
 import { GoogleGenAI } from "@google/genai";
+import { generatePromptWithFAQs, getDirectFAQAnswer } from "./chatUtils";
+import faqData from "./data.json";
+import FAQModal from "./FAQModal";
 
+// Initialize Google Gemini API
 const ai = new GoogleGenAI({ apiKey: "AIzaSyCNb7QTHBLbfrRjQgVw80NVq0o4GR93kh0" });
 
 const FloatingChatbot = () => {
@@ -25,8 +29,8 @@ const FloatingChatbot = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Educational platform context for the AI
-  const eduverseContext = "You are EDUverse Assistant, an AI chatbot for the EDUverse educational platform. EDUverse is an online learning platform that connects students with mentors and offers various courses across different categories including Programming, Design, Business, and Personal Development. The platform was created by team 'BROcode' of Adichunchanagiri Institute of Technology, with team members: Sagar H D, KARAN S GOWDA, MADAN K, and AFNAN. You can help users find courses, explain platform features, provide learning resources, and answer questions about the educational content. If users ask about the creators or the team behind EDUverse, provide the information about team BROcode. Be friendly, helpful, and educational in your responses.";
+  // State for showing FAQ data
+  const [showFAQs, setShowFAQs] = useState(false);
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -42,26 +46,62 @@ const FloatingChatbot = () => {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const newMessage = { text: input, sender: "user", timestamp: new Date() };
+    const userQuery = input.trim();
+    const newMessage = { text: userQuery, sender: "user", timestamp: new Date() };
     setMessages([...messages, newMessage]);
     setInput("");
     setLoading(true);
 
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
-        contents: [{ parts: [{ text: `${eduverseContext}\nUser Query: ${input}` }] }],
-      });
+      // First check if we have a direct answer in our FAQ data
+      const directAnswer = getDirectFAQAnswer(userQuery);
 
-      let botResponse = response.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't process that request.";
+      if (directAnswer) {
+        // If we have a direct answer, use it
+        const botResponse = directAnswer.output;
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            text: botResponse,
+            sender: "bot",
+            timestamp: new Date(),
+            fromFAQ: true
+          }
+        ]);
+      } else {
+        // Otherwise, use Gemini API with our enhanced prompt
+        const enhancedPrompt = generatePromptWithFAQs(userQuery);
 
-      // Formatting response for better readability
-      botResponse = botResponse.replace(/\*/g, "").replace(/\n/g, "<br />");
+        const response = await ai.models.generateContent({
+          model: "gemini-2.0-flash",
+          contents: [{ parts: [{ text: enhancedPrompt }] }],
+        });
 
-      setMessages((prevMessages) => [...prevMessages, { text: botResponse, sender: "bot", timestamp: new Date() }]);
+        let botResponse = response.candidates?.[0]?.content?.parts?.[0]?.text ||
+                         "Sorry, I couldn't process that request.";
+
+        // Formatting response for better readability
+        botResponse = botResponse.replace(/\*/g, "").replace(/\n/g, "<br />");
+
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            text: botResponse,
+            sender: "bot",
+            timestamp: new Date()
+          }
+        ]);
+      }
     } catch (error) {
       console.error("Error fetching bot response:", error);
-      setMessages((prevMessages) => [...prevMessages, { text: "Sorry, an error occurred while processing your request.", sender: "bot", timestamp: new Date() }]);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          text: "Sorry, an error occurred while processing your request.",
+          sender: "bot",
+          timestamp: new Date()
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -112,6 +152,12 @@ const FloatingChatbot = () => {
                       : "bg-indigo-600 text-white"
                   }`}
                 >
+                  {msg.fromFAQ && (
+                    <div className="flex items-center mb-1">
+                      <BookOpen size={12} className="text-indigo-600 mr-1" />
+                      <span className="text-xs text-indigo-600 font-medium">FAQ Answer</span>
+                    </div>
+                  )}
                   <p className="text-sm" dangerouslySetInnerHTML={{ __html: msg.text }}></p>
                   <p className="text-xs mt-1 opacity-60">
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

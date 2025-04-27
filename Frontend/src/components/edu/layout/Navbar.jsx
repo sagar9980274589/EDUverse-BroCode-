@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, Search, BookOpen, ChevronDown, User } from "lucide-react";
+import { Menu, X, Search, BookOpen, ChevronDown, User, Code } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setuser } from "../../UserSlice";
+import { setuser } from "../../../UserSlice";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -140,6 +140,11 @@ const Navbar = () => {
                 Social
               </Link>
 
+              <Link to="/edu/coding" className={`px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-indigo-500 transition font-medium ${isScrolled ? "text-gray-700" : "text-white"} flex items-center`}>
+                <Code size={16} className="mr-1" />
+                Coding
+              </Link>
+
               <Link to="/edu/about" className={`px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-indigo-500 transition font-medium ${isScrolled ? "text-gray-700" : "text-white"}`}>
                 About
               </Link>
@@ -235,6 +240,15 @@ const Navbar = () => {
                         onClick={() => setUserMenuOpen(false)}
                       >
                         My Courses
+                      </Link>
+
+                      <Link
+                        to="/edu/coding"
+                        className="px-4 py-2 text-gray-800 hover:bg-indigo-50 hover:text-indigo-600 flex items-center"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Code size={16} className="mr-2 text-indigo-600" />
+                        Coding Challenges
                       </Link>
 
                       {user.userType === 'mentor' && (
@@ -344,6 +358,11 @@ const Navbar = () => {
               Social Hub
             </Link>
 
+            <Link to="/edu/coding" className="py-2 font-medium flex items-center">
+              <Code size={16} className="mr-2" />
+              Coding Challenges
+            </Link>
+
             <Link to="/edu/about" className="block py-2 font-medium">
               About
             </Link>
@@ -358,6 +377,11 @@ const Navbar = () => {
 
               <Link to="/edu/my-courses" className="block py-2 font-medium">
                 My Courses
+              </Link>
+
+              <Link to="/edu/coding" className="py-2 font-medium flex items-center">
+                <Code size={18} className="mr-2 text-indigo-600" />
+                Coding Challenges
               </Link>
 
               {user.userType === 'mentor' && (

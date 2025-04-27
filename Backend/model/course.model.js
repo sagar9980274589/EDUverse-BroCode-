@@ -1,46 +1,46 @@
 import mongoose from "mongoose";
 
 const courseSchema = new mongoose.Schema({
-  title: { 
-    type: String, 
-    required: true 
+  title: {
+    type: String,
+    required: true
   },
-  description: { 
-    type: String, 
-    required: true 
+  description: {
+    type: String,
+    required: true
   },
-  category: { 
-    type: String, 
-    required: true 
+  category: {
+    type: String,
+    required: true
   },
   level: {
     type: String,
     enum: ["beginner", "intermediate", "advanced", "all"],
     default: "beginner"
   },
-  mentor: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: true 
+  mentor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
-  price: { 
-    type: Number, 
-    default: 0 
+  price: {
+    type: Number,
+    default: 0
   },
   isFree: {
     type: Boolean,
     default: true
   },
-  image: { 
-    type: String, 
-    default: "" 
+  image: {
+    type: String,
+    default: ""
   },
   videoLinks: [{
     title: String,
     url: String,
     type: {
       type: String,
-      enum: ["video", "playlist"],
+      enum: ["video", "playlist", "uploaded"],
       default: "video"
     }
   }],
@@ -50,7 +50,7 @@ const courseSchema = new mongoose.Schema({
       title: String,
       type: {
         type: String,
-        enum: ["video", "playlist"],
+        enum: ["video", "playlist", "uploaded"],
         default: "video"
       },
       url: String
@@ -60,9 +60,9 @@ const courseSchema = new mongoose.Schema({
     name: String,
     url: String
   }],
-  enrolledStudents: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User' 
+  enrolledStudents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }],
   ratings: [{
     student: {

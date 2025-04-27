@@ -12,10 +12,10 @@ import {
   Trash2,
   Save,
   Link as LinkIcon,
-  Youtube,
   List,
   Upload,
-  AlertCircle
+  AlertCircle,
+  Film
 } from "lucide-react";
 
 const EditCourse = () => {
@@ -28,7 +28,9 @@ const EditCourse = () => {
   const [courseImage, setCourseImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedVideos, setUploadedVideos] = useState([]);
   const [existingMaterials, setExistingMaterials] = useState([]);
+  const [existingVideos, setExistingVideos] = useState([]);
   const [isPublished, setIsPublished] = useState(false);
 
   // Debug: Log params
@@ -105,6 +107,11 @@ const EditCourse = () => {
         // Set existing materials
         if (course.materials && course.materials.length > 0) {
           setExistingMaterials(course.materials);
+        }
+
+        // Set existing videos
+        if (course.videos && course.videos.length > 0) {
+          setExistingVideos(course.videos);
         }
 
         // Set publish status
@@ -204,6 +211,31 @@ const EditCourse = () => {
     setUploadedFiles([...uploadedFiles, ...newFiles]);
   };
 
+  // Handle video upload
+  const handleVideoUpload = (e) => {
+    const files = Array.from(e.target.files);
+
+    // Filter only video files
+    const videoFiles = files.filter(file => file.type.startsWith('video/'));
+
+    if (videoFiles.length === 0) {
+      toast.error("Please select valid video files");
+      return;
+    }
+
+    // Create preview for each video file
+    const newVideos = videoFiles.map(file => ({
+      file,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      title: file.name.split('.')[0], // Use filename as default title
+      url: URL.createObjectURL(file), // Create a temporary URL for preview
+    }));
+
+    setUploadedVideos([...uploadedVideos, ...newVideos]);
+  };
+
   // Remove uploaded file
   const removeFile = (index) => {
     const newFiles = [...uploadedFiles];
@@ -215,6 +247,19 @@ const EditCourse = () => {
 
     newFiles.splice(index, 1);
     setUploadedFiles(newFiles);
+  };
+
+  // Remove uploaded video
+  const removeVideo = (index) => {
+    const newVideos = [...uploadedVideos];
+
+    // Revoke object URL to prevent memory leaks
+    if (newVideos[index].url) {
+      URL.revokeObjectURL(newVideos[index].url);
+    }
+
+    newVideos.splice(index, 1);
+    setUploadedVideos(newVideos);
   };
 
   // Handle video link changes
@@ -294,8 +339,29 @@ const EditCourse = () => {
   // Handle section content changes
   const handleContentChange = (sectionIndex, contentIndex, field, value) => {
     const updatedSections = [...formData.sections];
+    const currentContent = updatedSections[sectionIndex].content[contentIndex];
+
+    // Special handling for type changes
+    if (field === "type") {
+      // If changing to "uploaded", initialize videoFile property
+      if (value === "uploaded" && !currentContent.videoFile) {
+        currentContent.videoFile = null;
+      }
+
+      // If changing from "uploaded" to something else, clean up videoFile property
+      if (currentContent.type === "uploaded" && value !== "uploaded") {
+        // Revoke any object URLs to prevent memory leaks
+        if (currentContent.url && currentContent.url.startsWith("blob:")) {
+          URL.revokeObjectURL(currentContent.url);
+        }
+        delete currentContent.videoFile;
+        currentContent.url = "";
+      }
+    }
+
+    // Update the field
     updatedSections[sectionIndex].content[contentIndex] = {
-      ...updatedSections[sectionIndex].content[contentIndex],
+      ...currentContent,
       [field]: value
     };
 
@@ -308,11 +374,18 @@ const EditCourse = () => {
   // Add content item to section
   const addContentItem = (sectionIndex, type = "video") => {
     const updatedSections = [...formData.sections];
-    updatedSections[sectionIndex].content.push({
+    const newContentItem = {
       title: "",
       type,
       url: ""
-    });
+    };
+
+    // Add videoFile property for uploaded videos
+    if (type === "uploaded") {
+      newContentItem.videoFile = null;
+    }
+
+    updatedSections[sectionIndex].content.push(newContentItem);
 
     setFormData({
       ...formData,
@@ -328,6 +401,13 @@ const EditCourse = () => {
     }
 
     const updatedSections = [...formData.sections];
+    const contentToRemove = updatedSections[sectionIndex].content[contentIndex];
+
+    // Clean up any blob URLs for uploaded videos
+    if (contentToRemove.type === "uploaded" && contentToRemove.url && contentToRemove.url.startsWith("blob:")) {
+      URL.revokeObjectURL(contentToRemove.url);
+    }
+
     updatedSections[sectionIndex].content.splice(contentIndex, 1);
 
     setFormData({
@@ -342,12 +422,7 @@ const EditCourse = () => {
     return youtubeRegex.test(url);
   };
 
-  // Extract YouTube video ID
-  const getYoutubeVideoId = (url) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
+
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -402,6 +477,12 @@ const EditCourse = () => {
           setLoading(false);
           return;
         }
+
+        // Skip URL validation for uploaded videos
+        if (content.type === "uploaded") {
+          // URL will be set after upload
+          continue;
+        }
       }
     }
 
@@ -415,14 +496,39 @@ const EditCourse = () => {
       }
 
       // Add course materials
-      uploadedFiles.forEach((fileObj, index) => {
+      uploadedFiles.forEach((fileObj) => {
         data.append(`materials`, fileObj.file);
         data.append(`materialNames`, fileObj.name);
+      });
+
+      // Add uploaded videos
+      uploadedVideos.forEach((videoObj) => {
+        data.append(`videos`, videoObj.file);
+        data.append(`videoTitles`, videoObj.title);
+      });
+
+      // Add uploaded videos from course content sections
+      let contentVideoIndex = 0;
+      formData.sections.forEach((section, sectionIndex) => {
+        section.content.forEach((content, contentIndex) => {
+          if (content.type === "uploaded" && content.videoFile) {
+            data.append(`contentVideos`, content.videoFile);
+            data.append(`contentVideoTitles`, content.title);
+            data.append(`contentVideoSectionIndexes`, sectionIndex);
+            data.append(`contentVideoContentIndexes`, contentIndex);
+            contentVideoIndex++;
+          }
+        });
       });
 
       // Add existing materials to keep
       if (isEditing && existingMaterials.length > 0) {
         data.append("existingMaterials", JSON.stringify(existingMaterials));
+      }
+
+      // Add existing videos to keep
+      if (isEditing && existingVideos.length > 0) {
+        data.append("existingVideos", JSON.stringify(existingVideos));
       }
 
       // Add other form fields
@@ -489,7 +595,30 @@ const EditCourse = () => {
       }
     } catch (error) {
       console.error(`Error ${isEditing ? 'updating' : 'creating'} course:`, error);
-      toast.error(error.response?.data?.message || `An error occurred while ${isEditing ? 'updating' : 'creating'} the course`);
+
+      // Log more detailed error information
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
+      } else if (error.request) {
+        console.error("Request:", error.request);
+      } else {
+        console.error("Error message:", error.message);
+      }
+
+      // Show a more detailed error message
+      let errorMessage = `An error occurred while ${isEditing ? 'updating' : 'creating'} the course`;
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -739,11 +868,128 @@ const EditCourse = () => {
                 )}
               </div>
 
-              {/* Video Links */}
+              {/* Video Upload */}
               <div>
                 <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
-                  <Youtube className="mr-2" size={20} />
-                  Video Links
+                  <Video className="mr-2" size={20} />
+                  Upload Videos
+                </h3>
+
+                <div className="mb-6 space-y-4">
+                  <div className="border-dashed border-2 border-gray-300 rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      id="video-upload"
+                      accept="video/*"
+                      onChange={handleVideoUpload}
+                      className="hidden"
+                      multiple
+                    />
+                    <label
+                      htmlFor="video-upload"
+                      className="cursor-pointer flex flex-col items-center justify-center"
+                    >
+                      <Film size={40} className="text-gray-400 mb-2" />
+                      <span className="text-sm font-medium text-gray-700">
+                        Drag and drop videos here or click to browse
+                      </span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        Supported formats: MP4, WebM, MOV (Max 100MB)
+                      </span>
+                      <button
+                        type="button"
+                        className="mt-4 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none"
+                      >
+                        Select Videos
+                      </button>
+                    </label>
+                  </div>
+
+                  {/* Display existing videos */}
+                  {existingVideos.length > 0 && (
+                    <div className="mt-4 mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Existing Videos:</h4>
+                      <ul className="space-y-3">
+                        {existingVideos.map((video, index) => (
+                          <li key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center">
+                              <Film size={18} className="text-green-500 mr-2" />
+                              <div>
+                                <div className="flex items-center">
+                                  <span className="text-sm font-medium">{video.title || video.name}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">Uploaded video</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newVideos = [...existingVideos];
+                                  newVideos.splice(index, 1);
+                                  setExistingVideos(newVideos);
+                                }}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Display newly uploaded videos */}
+                  {uploadedVideos.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Newly Uploaded Videos:</h4>
+                      <ul className="space-y-3">
+                        {uploadedVideos.map((video, index) => (
+                          <li key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center">
+                              <Film size={18} className="text-indigo-500 mr-2" />
+                              <div>
+                                <div className="flex items-center">
+                                  <input
+                                    type="text"
+                                    value={video.title}
+                                    onChange={(e) => {
+                                      const newVideos = [...uploadedVideos];
+                                      newVideos[index].title = e.target.value;
+                                      setUploadedVideos(newVideos);
+                                    }}
+                                    placeholder="Video Title"
+                                    className="text-sm font-medium border-0 bg-transparent focus:ring-0 p-0 w-full"
+                                  />
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {(video.size / (1024 * 1024)).toFixed(2)} MB
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button
+                                type="button"
+                                onClick={() => removeVideo(index)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* YouTube Video Links */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
+                  <Video className="mr-2" size={20} />
+                  YouTube Video Links
                 </h3>
 
                 <div className="space-y-4">
@@ -767,7 +1013,7 @@ const EditCourse = () => {
                             placeholder="YouTube URL"
                             className="w-full px-3 py-2 pl-9 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                           />
-                          <Youtube className="absolute left-3 top-2.5 text-gray-400" size={16} />
+                          <Video className="absolute left-3 top-2.5 text-gray-400" size={16} />
                         </div>
                       </div>
                       <button
@@ -787,7 +1033,7 @@ const EditCourse = () => {
                     className="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800"
                   >
                     <Plus size={16} className="mr-1" />
-                    Add Video Link
+                    Add YouTube Link
                   </button>
                 </div>
               </div>
@@ -833,24 +1079,53 @@ const EditCourse = () => {
                                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 />
                               </div>
-                              <div className="md:col-span-2 relative">
-                                <input
-                                  type="text"
-                                  value={content.url}
-                                  onChange={(e) => handleContentChange(sectionIndex, contentIndex, "url", e.target.value)}
-                                  placeholder="YouTube URL"
-                                  className="w-full px-3 py-2 pl-9 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                />
-                                <Youtube className="absolute left-3 top-2.5 text-gray-400" size={16} />
-                              </div>
+                              {content.type === "uploaded" ? (
+                                <div className="md:col-span-2">
+                                  <div className="flex items-center">
+                                    <label className="cursor-pointer flex items-center justify-between w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+                                      <div className="flex items-center">
+                                        <Film className="text-gray-400 mr-2" size={16} />
+                                        <span>{content.videoFile ? content.videoFile.name : "Select video file"}</span>
+                                      </div>
+                                      <input
+                                        type="file"
+                                        accept="video/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                          const file = e.target.files[0];
+                                          if (file) {
+                                            // Update content with the selected file
+                                            handleContentChange(sectionIndex, contentIndex, "videoFile", file);
+                                            // Set a temporary URL for preview
+                                            handleContentChange(sectionIndex, contentIndex, "url", URL.createObjectURL(file));
+                                          }
+                                        }}
+                                      />
+                                      <Upload size={16} className="text-gray-500" />
+                                    </label>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="md:col-span-2 relative">
+                                  <input
+                                    type="text"
+                                    value={content.url}
+                                    onChange={(e) => handleContentChange(sectionIndex, contentIndex, "url", e.target.value)}
+                                    placeholder="YouTube URL"
+                                    className="w-full px-3 py-2 pl-9 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                  />
+                                  <Video className="absolute left-3 top-2.5 text-gray-400" size={16} />
+                                </div>
+                              )}
                               <div>
                                 <select
                                   value={content.type}
                                   onChange={(e) => handleContentChange(sectionIndex, contentIndex, "type", e.target.value)}
                                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 >
-                                  <option value="video">Video</option>
-                                  <option value="playlist">Playlist</option>
+                                  <option value="video">YouTube Video</option>
+                                  <option value="playlist">YouTube Playlist</option>
+                                  <option value="uploaded">Uploaded Video</option>
                                 </select>
                               </div>
                             </div>
@@ -872,7 +1147,7 @@ const EditCourse = () => {
                             className="inline-flex items-center text-xs text-indigo-600 hover:text-indigo-800"
                           >
                             <Plus size={14} className="mr-1" />
-                            Add Video
+                            Add YouTube Video
                           </button>
                           <button
                             type="button"
@@ -880,7 +1155,15 @@ const EditCourse = () => {
                             className="inline-flex items-center text-xs text-indigo-600 hover:text-indigo-800"
                           >
                             <Plus size={14} className="mr-1" />
-                            Add Playlist
+                            Add YouTube Playlist
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => addContentItem(sectionIndex, "uploaded")}
+                            className="inline-flex items-center text-xs text-indigo-600 hover:text-indigo-800"
+                          >
+                            <Plus size={14} className="mr-1" />
+                            Add Uploaded Video
                           </button>
                         </div>
                       </div>

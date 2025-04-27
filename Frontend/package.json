@@ -12,6 +12,7 @@
   "dependencies": {
     "@fontsource/material-symbols-outlined": "^5.1.4",
     "@google/genai": "^0.7.0",
+    "@monaco-editor/react": "^4.7.0",
     "@reduxjs/toolkit": "^2.5.1",
     "@tailwindcss/vite": "^4.0.6",
     "@tensorflow/tfjs": "^4.22.0",
