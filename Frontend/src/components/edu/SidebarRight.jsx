@@ -1,7 +1,8 @@
-import React from 'react';
-import { User, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, UserPlus, UserMinus } from 'lucide-react';
 
 const SidebarRight = ({ suggestedUsers, followOrUnfollow, user }) => {
+  const [followingInProgress, setFollowingInProgress] = useState({});
   return (
     <div className="w-64 hidden lg:block">
       <div className="bg-white rounded-xl shadow-md p-6 sticky top-24">
@@ -31,14 +32,41 @@ const SidebarRight = ({ suggestedUsers, followOrUnfollow, user }) => {
                     </div>
                   </div>
                   <button
-                    onClick={() => followOrUnfollow(suggestedUser._id)}
-                    className={`p-1.5 rounded-full ${
-                      user.following && user.following.includes(suggestedUser._id)
-                        ? "bg-indigo-100 text-indigo-600"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    onClick={() => {
+                      setFollowingInProgress(prev => ({ ...prev, [suggestedUser._id]: true }));
+                      try {
+                        followOrUnfollow(suggestedUser._id);
+                      } catch (error) {
+                        console.error("Error following/unfollowing:", error);
+                      } finally {
+                        // Set a timeout to ensure the UI updates after the API call completes
+                        setTimeout(() => {
+                          setFollowingInProgress(prev => ({ ...prev, [suggestedUser._id]: false }));
+                        }, 1000);
+                      }
+                    }}
+                    disabled={followingInProgress[suggestedUser._id]}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center ${
+                      followingInProgress[suggestedUser._id]
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : user.following && user.following.includes(suggestedUser._id)
+                          ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
                     }`}
                   >
-                    <Plus size={16} />
+                    {followingInProgress[suggestedUser._id] ? (
+                      "Loading..."
+                    ) : user.following && user.following.includes(suggestedUser._id) ? (
+                      <>
+                        <UserMinus size={12} className="mr-1" />
+                        <span>Unfollow</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus size={12} className="mr-1" />
+                        <span>Follow</span>
+                      </>
+                    )}
                   </button>
                 </div>
               )

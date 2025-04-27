@@ -199,9 +199,23 @@ const EduSocialHub = () => {
         if (suggestedResponse.data.success) {
           setSuggestedUsers(suggestedResponse.data.suggested);
         }
+
+        // Show success message
+        toast.success(response.data.message, {
+          position: "top-center",
+          autoClose: 2000,
+        });
+
+        return true;
       }
+      return false;
     } catch (error) {
       console.error("Error following/unfollowing user:", error);
+      toast.error("Failed to follow/unfollow user", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      return false;
     }
   };
 

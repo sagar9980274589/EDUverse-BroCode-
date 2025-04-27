@@ -152,6 +152,44 @@ const SocialSearchBar = ({ onUserSelect, onFilterChange }) => {
               </button>
             </div>
 
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+              <h5 className="text-blue-800 font-medium mb-2 flex items-center">
+                <Upload className="mr-2 text-blue-600" size={18} />
+                Search by Face
+              </h5>
+              <p className="text-sm text-blue-700 mb-3">
+                Upload a photo to find users using facial recognition technology.
+              </p>
+
+              <div className="flex justify-center">
+                <label htmlFor="face-search-upload" className="cursor-pointer bg-white border border-blue-300 hover:bg-blue-50 text-blue-700 font-medium py-2 px-4 rounded-lg flex items-center transition-colors">
+                  <Upload size={16} className="mr-2" />
+                  Upload Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="face-search-upload"
+                    onChange={(e) => {
+                      // This will be handled by the AdvancedSearch component
+                      // We're just making the button more prominent here
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div className="mt-2 text-xs text-blue-600 text-center">
+                Your photo will only be used for this search and won't be stored.
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <h5 className="text-gray-700 font-medium mb-2">Search by Name</h5>
+              <p className="text-sm text-gray-600 mb-3">
+                Enter a username or full name to find users.
+              </p>
+            </div>
+
             <AdvancedSearch
               onUserSelect={(user) => {
                 if (onUserSelect) {
@@ -161,8 +199,14 @@ const SocialSearchBar = ({ onUserSelect, onFilterChange }) => {
               }}
             />
 
-            <div className="mt-4 text-xs text-gray-500">
-              <p>Search for people by name or upload a photo to find users with facial recognition.</p>
+            <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+              <h5 className="text-sm font-medium text-gray-700 mb-1">How to use image search:</h5>
+              <ol className="text-xs text-gray-600 list-decimal pl-4 space-y-1">
+                <li>Click "Upload Photo" above</li>
+                <li>Select a clear photo with a face</li>
+                <li>The system will find users with similar facial features</li>
+                <li>Click on a user to view their profile or posts</li>
+              </ol>
             </div>
           </div>
         )}

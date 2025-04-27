@@ -34,6 +34,7 @@ import {
   acceptFollowRequest,
   rejectFollowRequest,
   sendFollowRequest,
+  cancelFollowRequest,
   checkUnreadMessages,
   markMessagesAsRead
 } from '../controller/follow.controller.js';
@@ -78,6 +79,7 @@ router.get('/getfollowing', auth, getFollowing);
 router.post('/acceptfollow/:requestId', auth, acceptFollowRequest);
 router.post('/rejectfollow/:requestId', auth, rejectFollowRequest);
 router.post('/sendfollow/:targetId', auth, sendFollowRequest);
+router.post('/cancelfollow/:targetId', auth, cancelFollowRequest);
 
 // Message notification routes
 router.get('/unreadmessages', auth, checkUnreadMessages);

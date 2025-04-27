@@ -561,25 +561,22 @@ export const followorunfollow = async (req, res) => {
           message: "Unfollowed successfully"
         });
       }
-      // If not following, send a follow request
+      // If not following, directly follow the user
       else {
-        // Check if there's already a pending request
-        if (targetUser.followRequests && targetUser.followRequests.includes(user._id)) {
-          return res.status(200).json({
-            success: true,
-            message: "Follow request already sent"
-          });
-        }
+        // Add to following and followers
+        await User.findOneAndUpdate(
+          { _id: user._id },
+          { $push: { following: targetUser._id } }
+        );
 
-        // Add to follow requests
         await User.findOneAndUpdate(
           { _id: targetUser._id },
-          { $push: { followRequests: user._id } }
+          { $push: { followers: user._id } }
         );
 
         return res.status(200).json({
           success: true,
-          message: "Follow request sent"
+          message: "Followed successfully"
         });
       }
     } catch (err) {

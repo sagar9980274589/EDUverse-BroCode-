@@ -3,15 +3,17 @@ import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Plus, Search, MessageSquare, X } from "lucide-react";
 import SocialLayout from "./SocialLayout";
-import SocialSearchBar from "./SocialSearchBar";
 import ProjectsTab from "./ProjectsTab";
 import EmptyStateTab from "./EmptyStateTab";
 import PostsList from "./PostsList";
 import CreatePostModal from "./CreatePostModal";
 import SidebarLeft from "./SidebarLeft";
-import SidebarRight from "./SidebarRight";
+import SidebarRightWithSearch from "./SidebarRightWithSearch";
 import ChatButton from "./ChatButton";
 import ChatDrawer from "./ChatDrawer";
+import FloatingSearchButton from "./FloatingSearchButton";
+import AdvancedSearchModal from "./AdvancedSearchModal";
+import SuggestedUsersSection from "./SuggestedUsersSection";
 import useGetAllPosts from "../../hooks/getallpost";
 import { reload } from "../../PostSlice";
 import { setuser } from "../../UserSlice";
@@ -42,6 +44,7 @@ const EduSocialHub = () => {
   const [expandedComments, setExpandedComments] = useState({});
   const [commentText, setCommentText] = useState({});
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
   useGetAllPosts();
   const posts = useSelector((state) => state.posts.posts);
   const postsLoading = false; // We'll assume posts are loaded since we're using the selector
@@ -200,9 +203,13 @@ const EduSocialHub = () => {
         if (suggestedResponse.data.success) {
           setSuggestedUsers(suggestedResponse.data.suggested);
         }
+
+        return true; // Return success for the UI handling
       }
+      return false;
     } catch (error) {
       console.error("Error following/unfollowing user:", error);
+      throw error; // Rethrow for UI error handling
     }
   };
 
@@ -282,52 +289,6 @@ const EduSocialHub = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            {/* New Social Search Bar */}
-            <SocialSearchBar
-              onUserSelect={(user) => {
-                if (!user || !user.username) return;
-
-                // Set search query to filter posts by this user
-                setSearchQuery(user.username);
-
-                // Show a more prominent notification
-                toast.success(
-                  <div className="flex items-center">
-                    <div className="mr-3">
-                      {user.profile ? (
-                        <img
-                          src={user.profile}
-                          alt={user.username}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-white"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                          <span className="text-indigo-600 font-bold text-lg">
-                            {user.username.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium">Showing posts from {user.username}</p>
-                      <p className="text-sm opacity-80">Click on their name to view profile</p>
-                    </div>
-                  </div>,
-                  {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                  }
-                );
-
-                // Scroll to top to show the filtered posts
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              onFilterChange={(value) => setSearchQuery(value)}
-            />
 
             {/* Search Query Indicator */}
             {searchQuery && (
@@ -354,8 +315,17 @@ const EduSocialHub = () => {
               </div>
             )}
 
-            {/* Create Post Button */}
-            <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex justify-end">
+            {/* Action Buttons */}
+            <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex justify-between items-center">
+              <button
+                onClick={() => setIsAdvancedSearchOpen(true)}
+                className="bg-white border border-indigo-600 text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 flex items-center"
+                title="Advanced Search"
+              >
+                <Search size={18} className="mr-2" />
+                Advanced Search
+              </button>
+
               <button
                 onClick={() => setShowCreatePost(true)}
                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center"
@@ -382,6 +352,53 @@ const EduSocialHub = () => {
                 </button>
               </div>
             </div>
+
+            {/* Suggested Users Section */}
+            {!searchQuery && (
+              <SuggestedUsersSection
+                suggestedUsers={suggestedUsers}
+                followOrUnfollow={followOrUnfollow}
+                user={user}
+                onUserSelect={(user) => {
+                  if (!user || !user.username) return;
+                  setSearchQuery(user.username);
+
+                  toast.success(
+                    <div className="flex items-center">
+                      <div className="mr-3">
+                        {user.profile ? (
+                          <img
+                            src={user.profile}
+                            alt={user.username}
+                            className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <span className="text-indigo-600 font-bold text-lg">
+                              {user.username.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">Showing posts from {user.username}</p>
+                        <p className="text-sm opacity-80">Click on their name to view profile</p>
+                      </div>
+                    </div>,
+                    {
+                      position: "top-center",
+                      autoClose: 5000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                    }
+                  );
+
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
+            )}
 
             {/* Mobile Tabs */}
             <div className="flex overflow-x-auto space-x-2 mb-6 lg:hidden">
@@ -473,11 +490,54 @@ const EduSocialHub = () => {
             )}
           </div>
 
-          {/* Right Sidebar */}
-          <SidebarRight
+          {/* Right Sidebar with Search */}
+          <SidebarRightWithSearch
             suggestedUsers={suggestedUsers}
             followOrUnfollow={followOrUnfollow}
             user={user}
+            onUserSelect={(user) => {
+              if (!user || !user.username) return;
+
+              // Set search query to filter posts by this user
+              setSearchQuery(user.username);
+
+              // Show a more prominent notification
+              toast.success(
+                <div className="flex items-center">
+                  <div className="mr-3">
+                    {user.profile ? (
+                      <img
+                        src={user.profile}
+                        alt={user.username}
+                        className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <span className="text-indigo-600 font-bold text-lg">
+                          {user.username.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium">Showing posts from {user.username}</p>
+                    <p className="text-sm opacity-80">Click on their name to view profile</p>
+                  </div>
+                </div>,
+                {
+                  position: "top-center",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                }
+              );
+
+              // Scroll to top to show the filtered posts
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onFilterChange={(value) => setSearchQuery(value)}
           />
         </div>
       </div>
@@ -500,10 +560,67 @@ const EduSocialHub = () => {
       {/* Chat Button for mobile/floating access */}
       <ChatButton />
 
+      {/* Floating Search Button for mobile */}
+      <FloatingSearchButton
+        onUserSelect={(user) => {
+          if (!user || !user.username) return;
+          setSearchQuery(user.username);
+
+          toast.success(`Showing posts from ${user.username}`);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onFilterChange={(value) => setSearchQuery(value)}
+      />
+
       {/* Chat Drawer */}
       <ChatDrawer
         isOpen={isChatDrawerOpen}
         onClose={() => setIsChatDrawerOpen(false)}
+      />
+
+      {/* Advanced Search Modal */}
+      <AdvancedSearchModal
+        isOpen={isAdvancedSearchOpen}
+        onClose={() => setIsAdvancedSearchOpen(false)}
+        onUserSelect={(user) => {
+          if (!user || !user.username) return;
+          setSearchQuery(user.username);
+
+          toast.success(
+            <div className="flex items-center">
+              <div className="mr-3">
+                {user.profile ? (
+                  <img
+                    src={user.profile}
+                    alt={user.username}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <span className="text-indigo-600 font-bold text-lg">
+                      {user.username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-medium">Showing posts from {user.username}</p>
+                <p className="text-sm opacity-80">Click on their name to view profile</p>
+              </div>
+            </div>,
+            {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            }
+          );
+
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setIsAdvancedSearchOpen(false);
+        }}
       />
     </SocialLayout>
   );

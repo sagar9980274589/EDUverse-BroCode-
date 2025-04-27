@@ -112,17 +112,17 @@ const EduSocialHub = () => {
       if (postImage) {
         formData.append("image", postImage);
       }
-      
+
       // Add tags based on the active tab
       let tagsToAdd = [...postTags];
-      
+
       // Automatically add the appropriate tag based on active tab
       if (activeTab === "projects" && !tagsToAdd.includes("project")) {
         tagsToAdd.push("project");
       } else if (activeTab === "skills" && !tagsToAdd.includes("skill")) {
         tagsToAdd.push("skill");
       }
-      
+
       if (tagsToAdd.length > 0) {
         formData.append("tags", JSON.stringify(tagsToAdd));
       }
@@ -177,15 +177,29 @@ const EduSocialHub = () => {
         if (userResponse.data.success) {
           dispatch(setuser(userResponse.data.user));
         }
-        
+
         // Refresh suggested users
         const suggestedResponse = await api.get("/user/getsuggested");
         if (suggestedResponse.data.success) {
           setSuggestedUsers(suggestedResponse.data.suggested);
         }
+
+        // Show success message
+        toast.success(response.data.message, {
+          position: "top-center",
+          autoClose: 2000,
+        });
+
+        return true;
       }
+      return false;
     } catch (error) {
       console.error("Error following/unfollowing user:", error);
+      toast.error("Failed to follow/unfollow user", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      return false;
     }
   };
 
@@ -221,7 +235,7 @@ const EduSocialHub = () => {
   // Share a post
   const sharePost = (postId, username) => {
     const url = `${window.location.origin}/edu/post/${postId}`;
-    
+
     if (navigator.share) {
       navigator.share({
         title: `Post by ${username} on EDUverse`,
@@ -258,10 +272,10 @@ const EduSocialHub = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
           {/* Left Sidebar */}
-          <SidebarLeft 
-            user={user} 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
+          <SidebarLeft
+            user={user}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
           />
 
           {/* Main Content */}
@@ -373,10 +387,10 @@ const EduSocialHub = () => {
           </div>
 
           {/* Right Sidebar */}
-          <SidebarRight 
-            suggestedUsers={suggestedUsers} 
-            followOrUnfollow={followOrUnfollow} 
-            user={user} 
+          <SidebarRight
+            suggestedUsers={suggestedUsers}
+            followOrUnfollow={followOrUnfollow}
+            user={user}
           />
         </div>
       </div>

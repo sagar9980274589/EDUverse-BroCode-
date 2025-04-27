@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../AxiosInstance";
 import * as faceapi from "face-api.js";
-import { Search, Upload, X, User, Users } from "lucide-react";
+import { Search, X, User, Users } from "lucide-react";
 import { toast } from "react-toastify";
 
 const AdvancedSearch = ({ onUserSelect }) => {
@@ -183,7 +183,7 @@ const AdvancedSearch = ({ onUserSelect }) => {
             type="text"
             value={searchText}
             onChange={handleSearch}
-            placeholder="Search by name or upload a photo..."
+            placeholder="Enter name to search..."
             className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <Search
@@ -191,24 +191,16 @@ const AdvancedSearch = ({ onUserSelect }) => {
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
           />
         </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            id="face-search-upload"
-            onChange={handleImageUpload}
-          />
-          <label
-            htmlFor="face-search-upload"
-            className={`cursor-pointer p-2 rounded-lg ${modelsLoaded ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-            title={modelsLoaded ? "Upload a photo to search by face" : "Face recognition models loading..."}
-          >
-            <Upload size={20} />
-          </label>
-        </div>
       </div>
+
+      {/* Hidden file input that will be triggered by the external button */}
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        id="face-search-upload"
+        onChange={handleImageUpload}
+      />
 
       {/* Image preview */}
       {image && (

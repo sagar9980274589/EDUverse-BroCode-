@@ -253,6 +253,57 @@ export const sendFollowRequest = async (req, res) => {
   }
 };
 
+// Cancel a follow request
+export const cancelFollowRequest = async (req, res) => {
+  try {
+    const userId = req.id;
+    const { targetId } = req.params;
+
+    if (!userId || !targetId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID and target ID are required",
+      });
+    }
+
+    // Find both users
+    const user = await User.findById(userId);
+    const targetUser = await User.findById(targetId);
+
+    if (!user || !targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if request exists
+    if (!targetUser.followRequests.includes(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "No follow request found to cancel",
+      });
+    }
+
+    // Remove the request
+    await User.findByIdAndUpdate(targetId, {
+      $pull: { followRequests: userId },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Follow request canceled",
+    });
+  } catch (error) {
+    console.error("Error canceling follow request:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while canceling follow request",
+      error: error.message,
+    });
+  }
+};
+
 // Check for unread messages
 export const checkUnreadMessages = async (req, res) => {
   try {
