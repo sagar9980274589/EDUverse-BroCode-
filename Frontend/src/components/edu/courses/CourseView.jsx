@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Navbar from "./Navbar";
+import Navbar from "../layout/Navbar";
 import CourseChat from "./CourseChat";
 import {
   BookOpen,
@@ -396,7 +396,7 @@ const CourseView = () => {
                 {isMentor() && (
                   <div className="flex space-x-3">
                     <Link
-                      to={`/edu/edit-course/${course._id}`}
+                      to={`/edit-course/${course._id}`}
                       className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
                     >
                       Edit Course

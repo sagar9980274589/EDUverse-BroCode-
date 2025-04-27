@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSocket } from "./socketSlice"; // Manage socket state in Redux
 import { setOnlineUsers, addMessage } from "./chatSlice"; // Manage chat state
 import io from "socket.io-client";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Register from "./components/Register";
-import Login from "./components/Login";
+// import Login from "./components/Login"; // Unused import
 import Sidebar from "./components/Sidebar";
 import Home from "./components/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -21,6 +21,7 @@ import FloatingChatbot from "./components/edu/FloatingChatbot";
 import ProfileSettings from "./components/edu/ProfileSettings";
 import EduProtectedRoute from "./components/edu/EduProtectedRoute";
 import CreateCourse from "./components/edu/CreateCourse";
+import { EditCourse } from "./components/edu/courses";
 import MyCourses from "./components/edu/MyCourses";
 import CourseView from "./components/edu/CourseView";
 import CoursesPage from "./components/edu/CoursesPage";
@@ -39,7 +40,16 @@ function App() {
   const location = useLocation();
 
   // Check if current route is part of the educational platform
-  const isEduRoute = location.pathname.startsWith('/edu');
+  const isEduRoute = location.pathname.startsWith('/edu') ||
+                    location.pathname === '/' ||
+                    location.pathname.startsWith('/course') ||
+                    location.pathname.startsWith('/profile') ||
+                    location.pathname.startsWith('/mentor') ||
+                    location.pathname.startsWith('/social') ||
+                    location.pathname.startsWith('/about') ||
+                    location.pathname.startsWith('/login') ||
+                    location.pathname.startsWith('/signup') ||
+                    location.pathname.startsWith('/forgot-password');
   const socketRef = useRef(null); // Store socket reference
 
   useEffect(() => {
@@ -99,15 +109,37 @@ function App() {
           <Route path="/chat" element={<Chatpage />} />
           <Route path="/search" element={<SearchPage/>} />
         </Route> */}
+
+        <Route path="/" element={<Navigate to="/edu" replace />} />
+        <Route path="/edu" element={<MainPage/>} />
         <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<EduLogin />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/facialData" element={<GetFacialData/>} />
-        <Route path="/" element={<MainPage/>} />
+
+
+        {/* Legacy routes - redirect to new routes */}
         <Route path="/edu/signup" element={<Signup />} />
         <Route path="/edu/login" element={<EduLogin />} />
         <Route path="/edu/forgot-password" element={<ForgotPassword />} />
+        {/* New routes */}
+        <Route path="/profile" element={<EduProtectedRoute><StudentProfile /></EduProtectedRoute>} />
+        <Route path="/create-course" element={<EduProtectedRoute><CreateCourse /></EduProtectedRoute>} />
+        <Route path="/edit-course/:courseId" element={<EduProtectedRoute><EditCourse /></EduProtectedRoute>} />
+        <Route path="/my-courses" element={<EduProtectedRoute><MyCourses /></EduProtectedRoute>} />
+        <Route path="/courses" element={<CoursesPage />} />
+        <Route path="/course/:courseId" element={<CourseView />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/mentors" element={<MentorsPage />} />
+        <Route path="/mentor/:mentorId" element={<MentorProfilePage />} />
+        <Route path="/social" element={<EduProtectedRoute><EduSocialHub /></EduProtectedRoute>} />
+        <Route path="/post/:postId" element={<EduProtectedRoute><PostDetail /></EduProtectedRoute>} />
+
+        {/* Legacy routes */}
         <Route path="/edu/profile" element={<EduProtectedRoute><StudentProfile /></EduProtectedRoute>} />
         <Route path="/edu/create-course" element={<EduProtectedRoute><CreateCourse /></EduProtectedRoute>} />
+        <Route path="/edu/edit-course/:courseId" element={<EduProtectedRoute><EditCourse /></EduProtectedRoute>} />
         <Route path="/edu/my-courses" element={<EduProtectedRoute><MyCourses /></EduProtectedRoute>} />
         <Route path="/edu/courses" element={<CoursesPage />} />
         <Route path="/edu/course/:courseId" element={<CourseView />} />

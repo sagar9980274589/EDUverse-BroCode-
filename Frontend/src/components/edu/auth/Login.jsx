@@ -84,7 +84,7 @@ const Login = () => {
         // Show success message
         showSuccess("Login successful!");
 
-        // Navigate to home page
+        // Navigate to edu home page
         navigate("/edu");
       } else {
         showError(response.data.message || "Invalid credentials");

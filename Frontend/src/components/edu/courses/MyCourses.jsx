@@ -357,7 +357,7 @@ const MyCourses = () => {
                       {user.userType === "mentor" && (
                         <div className="flex space-x-2">
                           <Link
-                            to={`/edu/edit-course/${course._id}`}
+                            to={`/edit-course/${course._id}`}
                             className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition"
                             title="Edit Course"
                           >

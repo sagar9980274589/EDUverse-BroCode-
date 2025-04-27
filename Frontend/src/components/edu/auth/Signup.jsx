@@ -11,7 +11,7 @@ const Signup = () => {
   const [userType, setUserType] = useState(""); // "student" or "mentor"
   const [step, setStep] = useState(1); // 1: User Type Selection, 2: Form, 3: Confirmation
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const {
     register,
     handleSubmit,
@@ -50,20 +50,20 @@ const Signup = () => {
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
-    
+
     try {
       // Add user type to the data
       const userData = {
         ...data,
         userType: userType,
       };
-      
+
       // Store user data in localStorage for facial recognition step
       localStorage.setItem("userData", JSON.stringify(userData));
-      
+
       // Navigate to facial data capture
       navigate("/facialData");
-      
+
     } catch (error) {
       console.error("Registration error:", error);
       showError(error.response?.data?.message || "Registration failed. Please try again.");
@@ -79,9 +79,9 @@ const Signup = () => {
         <p className="text-gray-600 text-center mb-8">
           Choose how you want to use our platform
         </p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div 
+          <div
             className="border border-gray-200 rounded-xl p-6 text-center hover:border-indigo-500 hover:shadow-md transition cursor-pointer"
             onClick={() => handleUserTypeSelection("student")}
           >
@@ -93,8 +93,8 @@ const Signup = () => {
               Join as a student to access courses, connect with mentors, and track your learning progress.
             </p>
           </div>
-          
-          <div 
+
+          <div
             className="border border-gray-200 rounded-xl p-6 text-center hover:border-indigo-500 hover:shadow-md transition cursor-pointer"
             onClick={() => handleUserTypeSelection("mentor")}
           >
@@ -107,7 +107,7 @@ const Signup = () => {
             </p>
           </div>
         </div>
-        
+
         <div className="mt-8 text-center">
           <p className="text-gray-600 text-sm">
             Already have an account?{" "}
@@ -124,19 +124,19 @@ const Signup = () => {
   const renderStudentForm = () => {
     return (
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden md:max-w-2xl p-8">
-        <button 
-          onClick={() => setStep(1)} 
+        <button
+          onClick={() => setStep(1)}
           className="flex items-center text-indigo-600 mb-6 hover:text-indigo-800 transition"
         >
           <ChevronLeft size={16} />
           <span>Back</span>
         </button>
-        
+
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Student Registration</h2>
         <p className="text-gray-600 text-center mb-6">
           Create your student account to start learning
         </p>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -153,7 +153,7 @@ const Signup = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.fullname.message}</p>
               )}
             </div>
-            
+
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                 Username
@@ -169,7 +169,7 @@ const Signup = () => {
               )}
             </div>
           </div>
-          
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email Address
@@ -190,7 +190,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
@@ -211,7 +211,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="educationLevel" className="block text-sm font-medium text-gray-700 mb-1">
               Education Level
@@ -231,7 +231,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.educationLevel.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="interests" className="block text-sm font-medium text-gray-700 mb-1">
               Interests (Select at least one)
@@ -308,7 +308,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.interests.message}</p>
             )}
           </div>
-          
+
           <div className="flex items-center">
             <input
               {...register("termsAccepted", { required: "You must accept the terms" })}
@@ -329,7 +329,7 @@ const Signup = () => {
           {errors.termsAccepted && (
             <p className="mt-1 text-sm text-red-600">{errors.termsAccepted.message}</p>
           )}
-          
+
           <div>
             <button
               type="submit"
@@ -348,19 +348,19 @@ const Signup = () => {
   const renderMentorForm = () => {
     return (
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden md:max-w-2xl p-8">
-        <button 
-          onClick={() => setStep(1)} 
+        <button
+          onClick={() => setStep(1)}
           className="flex items-center text-indigo-600 mb-6 hover:text-indigo-800 transition"
         >
           <ChevronLeft size={16} />
           <span>Back</span>
         </button>
-        
+
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Mentor Registration</h2>
         <p className="text-gray-600 text-center mb-6">
           Create your mentor account to start teaching
         </p>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -377,7 +377,7 @@ const Signup = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.fullname.message}</p>
               )}
             </div>
-            
+
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                 Username
@@ -393,7 +393,7 @@ const Signup = () => {
               )}
             </div>
           </div>
-          
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email Address
@@ -414,7 +414,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
@@ -435,7 +435,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="qualifications" className="block text-sm font-medium text-gray-700 mb-1">
               Qualifications
@@ -450,7 +450,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.qualifications.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
               Years of Experience
@@ -470,7 +470,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.experience.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="hourlyRate" className="block text-sm font-medium text-gray-700 mb-1">
               Hourly Rate (USD)
@@ -491,7 +491,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.hourlyRate.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="expertise" className="block text-sm font-medium text-gray-700 mb-1">
               Areas of Expertise (Select at least one)
@@ -568,7 +568,7 @@ const Signup = () => {
               <p className="mt-1 text-sm text-red-600">{errors.expertise.message}</p>
             )}
           </div>
-          
+
           <div>
             <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
               Bio (Tell students about yourself)
@@ -592,7 +592,7 @@ const Signup = () => {
               {watch("bio")?.length || 0}/500 characters
             </p>
           </div>
-          
+
           <div className="flex items-center">
             <input
               {...register("termsAccepted", { required: "You must accept the terms" })}
@@ -613,7 +613,7 @@ const Signup = () => {
           {errors.termsAccepted && (
             <p className="mt-1 text-sm text-red-600">{errors.termsAccepted.message}</p>
           )}
-          
+
           <div>
             <button
               type="submit"

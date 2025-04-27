@@ -18,7 +18,9 @@ import {
   AlertCircle
 } from "lucide-react";
 
-const CreateCourse = ({ isEditing = false }) => {
+const EditCourse = () => {
+  // Always set isEditing to true since this is the EditCourse component
+  const isEditing = true;
   const user = useSelector((state) => state.data.userdata);
   const navigate = useNavigate();
   const { courseId } = useParams();
@@ -29,10 +31,10 @@ const CreateCourse = ({ isEditing = false }) => {
   const [existingMaterials, setExistingMaterials] = useState([]);
   const [isPublished, setIsPublished] = useState(false);
 
-  // Debug: Log props and params
+  // Debug: Log params
   useEffect(() => {
-    console.log("CreateCourse component mounted with props:", { isEditing, courseId });
-  }, [isEditing, courseId]);
+    console.log("EditCourse component mounted with courseId:", courseId);
+  }, [courseId]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -120,26 +122,29 @@ const CreateCourse = ({ isEditing = false }) => {
     }
   }, [courseId, user, navigate]);
 
-  // Check if user is a mentor and fetch course data if editing
+  // Check if user is a mentor and fetch course data
   useEffect(() => {
-    console.log("useEffect triggered with isEditing:", isEditing, "courseId:", courseId);
+    console.log("useEffect triggered with courseId:", courseId);
 
     if (user && user._id) {
       if (user.userType !== "mentor") {
-        toast.error("Only mentors can create or edit courses");
+        toast.error("Only mentors can edit courses");
         navigate("/");
         return;
       }
 
-      // If editing, fetch the course data
-      if (isEditing && courseId) {
-        console.log("Conditions met, calling fetchCourseData()");
+      // Fetch the course data if we have a courseId
+      if (courseId) {
+        console.log("Fetching course data");
         fetchCourseData();
+      } else {
+        toast.error("No course ID provided");
+        navigate("/my-courses");
       }
     } else {
       navigate("/login");
     }
-  }, [user, navigate, isEditing, courseId, fetchCourseData]);
+  }, [user, navigate, courseId, fetchCourseData]);
 
   // Handle input changes for basic course info
   const handleChange = (e) => {
@@ -957,4 +962,4 @@ const CreateCourse = ({ isEditing = false }) => {
   );
 };
 
-export default CreateCourse;
+export default EditCourse;
