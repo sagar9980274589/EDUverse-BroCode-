@@ -138,9 +138,56 @@ const CodeEditor = ({ challenge, language, setLanguage, onSubmitSuccess }) => {
         setTestResults(response.data.submission.testResults);
 
         if (response.data.submission.allTestsPassed) {
-          toast.success('All tests passed! Solution submitted successfully.');
+          // Get student ranking to check streak
+          try {
+            const rankingResponse = await axios.get(
+              `${CODING_API_URL}/ranking`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              }
+            );
+
+            if (rankingResponse.data.success && rankingResponse.data.ranking) {
+              const { streak } = rankingResponse.data.ranking;
+              if (streak > 1) {
+                toast.success(`🔥 All tests passed! Your coding streak is now ${streak} days! Keep it up!`);
+              } else {
+                toast.success('All tests passed! Solution submitted successfully. You started a new streak!');
+              }
+            } else {
+              toast.success('All tests passed! Solution submitted successfully.');
+            }
+
+            // Check if there's a next challenge
+            if (response.data.nextChallenge) {
+              const nextChallenge = response.data.nextChallenge;
+
+              // Show a toast with the next challenge
+              toast.info(
+                <div>
+                  <p>Ready for your next challenge?</p>
+                  <a
+                    href={`/edu/coding/challenge/${nextChallenge._id}`}
+                    className="text-indigo-600 font-medium hover:underline"
+                  >
+                    {nextChallenge.title} ({nextChallenge.difficulty})
+                  </a>
+                </div>,
+                {
+                  autoClose: 10000, // Keep it open longer
+                  closeOnClick: false
+                }
+              );
+            }
+          } catch (rankingError) {
+            console.error('Error fetching streak info:', rankingError);
+            toast.success('All tests passed! Solution submitted successfully.');
+          }
+
           if (onSubmitSuccess) {
-            onSubmitSuccess();
+            onSubmitSuccess(response.data.nextChallenge);
           }
         } else {
           toast.warning('Some tests failed. Check the results below.');

@@ -28,6 +28,9 @@ import courseMessageRoute from './route/courseMessage.route.js';
 import passwordRoute from './route/password.route.js';
 import commentRoute from './route/comment.route.js';
 import codingChallengeRoute from './route/coding_challenge.route.js';
+import projectStreakRoute from './route/project_streak.route.js';
+import learningStreakRoute from './route/learning_streak.route.js';
+import userSearchRoute from './route/user_search.route.js';
 
 app.use('/user', userRoute);
 app.use('/course', courseRoute);
@@ -35,6 +38,9 @@ app.use('/course', courseMessageRoute);
 app.use('/password', passwordRoute);
 app.use('/comment', commentRoute);
 app.use('/coding', codingChallengeRoute);
+app.use('/projects', projectStreakRoute);
+app.use('/learning', learningStreakRoute);
+app.use('/search', userSearchRoute);
 
 // Root route for testing
 app.get('/', (req, res) => {

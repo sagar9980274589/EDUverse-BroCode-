@@ -6,6 +6,10 @@ export const auth = async (req, res, next) => {
     try {
         let token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
+        // Log token for debugging
+        console.log("Auth middleware - Token received:", token ? "Token exists" : "No token");
+        console.log("Auth middleware - Headers:", req.headers.authorization);
+
         // 🛑 If no token is found, return error
         if (!token) {
             return res.status(401).json({

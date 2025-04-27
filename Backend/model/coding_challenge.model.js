@@ -110,6 +110,11 @@ const challengeSubmissionSchema = new mongoose.Schema({
   submittedAt: {
     type: Date,
     default: Date.now
+  },
+  // Track if this submission contributed to a streak
+  contributedToStreak: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
@@ -140,6 +145,10 @@ const studentRankingSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  longestStreak: {
+    type: Number,
+    default: 0
+  },
   lastSolvedDate: {
     type: Date
   },
@@ -153,7 +162,13 @@ const studentRankingSchema = new mongoose.Schema({
   solvedChallenges: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'CodingChallenge'
-  }]
+  }],
+  // Track daily activity for heatmap
+  activityHistory: {
+    type: Map,
+    of: Number,
+    default: {}
+  }
 }, { timestamps: true });
 
 export const CodingChallenge = mongoose.model("CodingChallenge", codingChallengeSchema);

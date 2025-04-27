@@ -1008,7 +1008,10 @@ export const connectGitHub = async (req, res) => {
         homepage: repo.homepage
       }));
 
-      // Update user with GitHub data
+      // Update user with GitHub data and initialize streak data
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         {
@@ -1016,7 +1019,13 @@ export const connectGitHub = async (req, res) => {
           githubRepos: repos,
           githubData,
           githubLastUpdated: new Date(),
-          githubConnected: true
+          githubConnected: true,
+          // Initialize streak data
+          projectStreak: 1,
+          projectStreakLastUpdated: today,
+          longestProjectStreak: 1,
+          totalProjectContributions: 0,
+          projectContributionHistory: { [today.toISOString().split('T')[0]]: 1 }
         },
         { new: true }
       );

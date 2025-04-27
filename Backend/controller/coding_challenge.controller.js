@@ -503,6 +503,10 @@ export const submitSolution = async (req, res) => {
 
         // Add to solved challenges
         studentRanking.solvedChallenges.push(challengeId);
+
+        // Mark this submission as contributing to streak
+        submission.contributedToStreak = true;
+        await submission.save();
       }
 
       // Update streak
@@ -511,31 +515,76 @@ export const submitSolution = async (req, res) => {
       today.setHours(0, 0, 0, 0);
 
       if (lastSolvedDate) {
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
         const lastSolved = new Date(lastSolvedDate);
         lastSolved.setHours(0, 0, 0, 0);
 
-        if (lastSolved.getTime() === yesterday.getTime()) {
-          // Solved yesterday, increment streak
-          studentRanking.streak += 1;
-        } else if (lastSolved.getTime() < yesterday.getTime()) {
-          // Missed a day, reset streak
-          studentRanking.streak = 1;
+        // Check if this is the first submission today
+        const isFirstSubmissionToday = lastSolved.getTime() !== today.getTime();
+
+        if (isFirstSubmissionToday) {
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+
+          if (lastSolved.getTime() === yesterday.getTime()) {
+            // Solved yesterday, increment streak
+            studentRanking.streak += 1;
+          } else if (lastSolved.getTime() < yesterday.getTime()) {
+            // Missed a day, reset streak
+            studentRanking.streak = 1;
+          }
+          // If already solved today, streak remains the same
         }
-        // If already solved today, streak remains the same
+        // If not the first submission today, streak remains the same
       } else {
         // First time solving, start streak
         studentRanking.streak = 1;
       }
 
+      // Update last solved date
       studentRanking.lastSolvedDate = new Date();
+
+      // Update longest streak if current streak is longer
+      if (studentRanking.streak > (studentRanking.longestStreak || 0)) {
+        studentRanking.longestStreak = studentRanking.streak;
+      }
+
+      // Update activity history for heatmap
+      const todayStr = today.toISOString().split('T')[0];
+      if (!studentRanking.activityHistory) {
+        studentRanking.activityHistory = new Map();
+      }
+      const currentActivities = studentRanking.activityHistory.get(todayStr) || 0;
+      studentRanking.activityHistory.set(todayStr, currentActivities + 1);
 
       await studentRanking.save();
 
       // Update rankings for all students
       await updateRankings();
+    }
+
+    // If all tests passed, get a new challenge for the user
+    let nextChallenge = null;
+    if (allTestsPassed) {
+      try {
+        // Find a challenge that the user hasn't solved yet
+        const solvedChallenges = studentRanking ? studentRanking.solvedChallenges : [];
+        nextChallenge = await CodingChallenge.findOne({
+          _id: { $ne: challengeId, $nin: solvedChallenges },
+          // Exclude the current challenge and already solved challenges
+        }).sort({ difficulty: 1 }); // Sort by difficulty to give easier ones first
+
+        // If no unsolved challenge found, pick a random one (excluding current)
+        if (!nextChallenge) {
+          const count = await CodingChallenge.countDocuments({ _id: { $ne: challengeId } });
+          if (count > 0) {
+            const random = Math.floor(Math.random() * count);
+            nextChallenge = await CodingChallenge.findOne({ _id: { $ne: challengeId } }).skip(random);
+          }
+        }
+      } catch (error) {
+        console.error("Error finding next challenge:", error);
+        // Continue without a next challenge if there's an error
+      }
     }
 
     return res.status(201).json({
@@ -546,7 +595,12 @@ export const submitSolution = async (req, res) => {
         status: submission.status,
         testResults,
         allTestsPassed
-      }
+      },
+      nextChallenge: nextChallenge ? {
+        _id: nextChallenge._id,
+        title: nextChallenge.title,
+        difficulty: nextChallenge.difficulty
+      } : null
     });
   } catch (error) {
     console.error("Error submitting solution:", error);

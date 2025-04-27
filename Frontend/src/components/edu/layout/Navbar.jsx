@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, Search, BookOpen, ChevronDown, User, Code } from "lucide-react";
+import { Menu, X, Search, BookOpen, ChevronDown, User, Code, BarChart2, Flame } from "lucide-react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setuser } from "../../../UserSlice";
@@ -10,12 +11,42 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [codingStreak, setCodingStreak] = useState(0);
 
   // Get user data from Redux store
   const user = useSelector((state) => state.data.userdata);
   const isLoggedIn = user && user._id;
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // Fetch user's coding streak
+  useEffect(() => {
+    const fetchCodingStreak = async () => {
+      if (isLoggedIn) {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return;
+
+          const response = await axios.get(
+            'http://localhost:3000/coding/ranking',
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          );
+
+          if (response.data.success && response.data.ranking) {
+            setCodingStreak(response.data.ranking.streak || 0);
+          }
+        } catch (error) {
+          console.error('Error fetching coding streak:', error);
+        }
+      }
+    };
+
+    fetchCodingStreak();
+  }, [isLoggedIn]);
 
   // Handle search submission
   const handleSearch = (e) => {
@@ -145,6 +176,13 @@ const Navbar = () => {
                 Coding
               </Link>
 
+              {isLoggedIn && (
+                <Link to="/learning" className={`px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-indigo-500 transition font-medium ${isScrolled ? "text-gray-700" : "text-white"} flex items-center`}>
+                  <BarChart2 size={16} className="mr-1" />
+                  Learning
+                </Link>
+              )}
+
               <Link to="/edu/about" className={`px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-indigo-500 transition font-medium ${isScrolled ? "text-gray-700" : "text-white"}`}>
                 About
               </Link>
@@ -244,11 +282,28 @@ const Navbar = () => {
 
                       <Link
                         to="/edu/coding"
+                        className="px-4 py-2 text-gray-800 hover:bg-indigo-50 hover:text-indigo-600 flex items-center justify-between"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <div className="flex items-center">
+                          <Code size={16} className="mr-2 text-indigo-600" />
+                          Coding Challenges
+                        </div>
+                        {codingStreak > 0 && (
+                          <div className="flex items-center bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                            <Flame size={12} className="mr-1 text-orange-500" />
+                            {codingStreak}
+                          </div>
+                        )}
+                      </Link>
+
+                      <Link
+                        to="/learning"
                         className="px-4 py-2 text-gray-800 hover:bg-indigo-50 hover:text-indigo-600 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <Code size={16} className="mr-2 text-indigo-600" />
-                        Coding Challenges
+                        <BarChart2 size={16} className="mr-2 text-indigo-600" />
+                        Learning Dashboard
                       </Link>
 
                       {user.userType === 'mentor' && (
@@ -358,10 +413,25 @@ const Navbar = () => {
               Social Hub
             </Link>
 
-            <Link to="/edu/coding" className="py-2 font-medium flex items-center">
-              <Code size={16} className="mr-2" />
-              Coding Challenges
+            <Link to="/edu/coding" className="py-2 font-medium flex items-center justify-between">
+              <div className="flex items-center">
+                <Code size={16} className="mr-2" />
+                Coding Challenges
+              </div>
+              {codingStreak > 0 && (
+                <div className="flex items-center bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                  <Flame size={12} className="mr-1 text-orange-500" />
+                  {codingStreak}
+                </div>
+              )}
             </Link>
+
+            {isLoggedIn && (
+              <Link to="/learning" className="py-2 font-medium flex items-center">
+                <BarChart2 size={16} className="mr-2" />
+                Learning Dashboard
+              </Link>
+            )}
 
             <Link to="/edu/about" className="block py-2 font-medium">
               About

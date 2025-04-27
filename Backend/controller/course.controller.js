@@ -601,10 +601,15 @@ export const deleteCourse = async (req, res) => {
     }
 
     // Check if user is the mentor of the course
-    if (course.mentor.toString() !== userId) {
+    // Convert both IDs to strings for proper comparison
+    if (course.mentor.toString() !== userId.toString()) {
+      console.log("Authorization failed:");
+      console.log("Course mentor ID:", course.mentor.toString());
+      console.log("User ID:", userId.toString());
+
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to delete this course"
+        message: "You are not authorized to delete this course. Only the course creator can delete it."
       });
     }
 

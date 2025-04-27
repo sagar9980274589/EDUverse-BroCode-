@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { Plus, Search, MessageSquare } from "lucide-react";
-import Navbar from "./Navbar";
+import { Plus, Search, MessageSquare, X } from "lucide-react";
+import SocialLayout from "./SocialLayout";
+import SocialSearchBar from "./SocialSearchBar";
 import ProjectsTab from "./ProjectsTab";
 import EmptyStateTab from "./EmptyStateTab";
 import PostsList from "./PostsList";
@@ -269,9 +270,8 @@ const EduSocialHub = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="container mx-auto px-4 py-6">
+    <SocialLayout>
+      <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
           {/* Left Sidebar */}
           <SidebarLeft
@@ -282,29 +282,88 @@ const EduSocialHub = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="bg-white rounded-xl shadow-md p-4 mb-6">
-              <div className="flex items-center space-x-3">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search posts, users, or tags..."
-                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <Search
-                    size={18}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
+            {/* New Social Search Bar */}
+            <SocialSearchBar
+              onUserSelect={(user) => {
+                if (!user || !user.username) return;
+
+                // Set search query to filter posts by this user
+                setSearchQuery(user.username);
+
+                // Show a more prominent notification
+                toast.success(
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      {user.profile ? (
+                        <img
+                          src={user.profile}
+                          alt={user.username}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                          <span className="text-indigo-600 font-bold text-lg">
+                            {user.username.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">Showing posts from {user.username}</p>
+                      <p className="text-sm opacity-80">Click on their name to view profile</p>
+                    </div>
+                  </div>,
+                  {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                  }
+                );
+
+                // Scroll to top to show the filtered posts
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onFilterChange={(value) => setSearchQuery(value)}
+            />
+
+            {/* Search Query Indicator */}
+            {searchQuery && (
+              <div className="bg-white rounded-xl shadow-md p-4 mb-6">
+                <div className="flex items-center justify-between bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                  <div className="flex items-center">
+                    <div className="bg-indigo-100 p-2 rounded-full mr-3">
+                      <Search size={16} className="text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-indigo-800">
+                        Showing results for: <span className="font-semibold">{searchQuery}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-indigo-100 rounded-full transition-colors"
+                    title="Clear search"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setShowCreatePost(true)}
-                  className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700"
-                  title="Create a new post"
-                >
-                  <Plus size={20} />
-                </button>
               </div>
+            )}
+
+            {/* Create Post Button */}
+            <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex justify-end">
+              <button
+                onClick={() => setShowCreatePost(true)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center"
+                title="Create a new post"
+              >
+                <Plus size={18} className="mr-2" />
+                Create Post
+              </button>
             </div>
 
             {/* Chat Access Button */}
@@ -446,7 +505,7 @@ const EduSocialHub = () => {
         isOpen={isChatDrawerOpen}
         onClose={() => setIsChatDrawerOpen(false)}
       />
-    </div>
+    </SocialLayout>
   );
 };
 

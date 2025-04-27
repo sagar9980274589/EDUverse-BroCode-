@@ -1,12 +1,50 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, BookOpen, HelpCircle } from "lucide-react";
+import { MessageCircle, X, Send, BookOpen, HelpCircle, List } from "lucide-react";
 import { GoogleGenAI } from "@google/genai";
-import { generatePromptWithFAQs, getDirectFAQAnswer } from "./chatUtils";
-import faqData from "./data.json";
+import {
+  generatePromptWithFAQs,
+  getDirectFAQAnswer,
+  getFAQCategories,
+  getFAQsByCategory
+} from "./chatUtils";
+import categorizedFaqData from "./data.json";
 import FAQModal from "./FAQModal";
 
-// Initialize Google Gemini API
+// Initialize Google Gemini API with safety settings
 const ai = new GoogleGenAI({ apiKey: "AIzaSyCNb7QTHBLbfrRjQgVw80NVq0o4GR93kh0" });
+
+// Configure the generative model
+const configureModel = () => {
+  const model = ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    safetySettings: [
+      {
+        category: "HARM_CATEGORY_HARASSMENT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      },
+      {
+        category: "HARM_CATEGORY_HATE_SPEECH",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      },
+      {
+        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      },
+      {
+        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      }
+    ],
+    generationConfig: {
+      temperature: 0.7,
+      topK: 40,
+      topP: 0.95,
+      maxOutputTokens: 1024,
+    }
+  });
+
+  return model;
+};
 
 const FloatingChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,10 +65,14 @@ const FloatingChatbot = () => {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
   const messagesEndRef = useRef(null);
 
   // State for showing FAQ data
-  const [showFAQs, setShowFAQs] = useState(false);
+  const [showFAQModal, setShowFAQModal] = useState(false);
+
+  // Get all available categories
+  const categories = getFAQCategories();
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -42,6 +84,40 @@ const FloatingChatbot = () => {
       scrollToBottom();
     }
   }, [messages, isOpen]);
+
+  // Handle category selection
+  const handleCategorySelect = (category) => {
+    const categoryFAQs = getFAQsByCategory(category);
+
+    // Create a message showing the category was selected
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        text: `I'd like to know about ${category}`,
+        sender: "user",
+        timestamp: new Date()
+      }
+    ]);
+
+    // Create a response with the category information
+    const faqList = categoryFAQs.map(faq => `• ${faq.input}`).join('<br />');
+    const response = `<strong>${category} Information</strong><br /><br />` +
+                     `Here are some common questions about ${category}:<br /><br />` +
+                     faqList + '<br /><br />' +
+                     'You can ask any of these questions or ask something else!';
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        text: response,
+        sender: "bot",
+        timestamp: new Date(),
+        fromCategory: true
+      }
+    ]);
+
+    setShowCategories(false);
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -59,10 +135,13 @@ const FloatingChatbot = () => {
       if (directAnswer) {
         // If we have a direct answer, use it
         const botResponse = directAnswer.output;
+        const categoryInfo = directAnswer.category ?
+          `<div class="text-xs text-indigo-600 mb-1">[Category: ${directAnswer.category}]</div>` : '';
+
         setMessages((prevMessages) => [
           ...prevMessages,
           {
-            text: botResponse,
+            text: `${categoryInfo}${botResponse}`,
             sender: "bot",
             timestamp: new Date(),
             fromFAQ: true
@@ -75,6 +154,30 @@ const FloatingChatbot = () => {
         const response = await ai.models.generateContent({
           model: "gemini-2.0-flash",
           contents: [{ parts: [{ text: enhancedPrompt }] }],
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          }
         });
 
         let botResponse = response.candidates?.[0]?.content?.parts?.[0]?.text ||
@@ -109,6 +212,10 @@ const FloatingChatbot = () => {
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
+  };
+
+  const toggleCategories = () => {
+    setShowCategories(!showCategories);
   };
 
   return (

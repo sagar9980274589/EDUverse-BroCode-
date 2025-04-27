@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "download-face-models": "node scripts/download-face-models.js",
+    "postinstall": "npm run download-face-models"
   },
   "dependencies": {
     "@fontsource/material-symbols-outlined": "^5.1.4",

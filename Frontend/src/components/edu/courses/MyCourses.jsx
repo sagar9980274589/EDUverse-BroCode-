@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../../../AxiosInstance";
 import { toast } from "react-toastify";
 import Navbar from "../layout/Navbar";
 import {
@@ -40,18 +41,14 @@ const MyCourses = () => {
 
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
 
         // Different endpoints for mentors and students
         const endpoint = user.userType === "mentor"
-          ? `http://localhost:3000/course/mentor/${user._id}`
-          : `http://localhost:3000/course/student/${user._id}`;
+          ? `/course/mentor/${user._id}`
+          : `/course/student/${user._id}`;
 
-        const response = await axios.get(endpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        // Use the API instance which already has the token in the headers
+        const response = await api.get(endpoint);
 
         if (response.status === 200) {
           setCourses(response.data.courses || []);
@@ -70,16 +67,8 @@ const MyCourses = () => {
   // Handle course deletion
   const handleDeleteCourse = async (courseId) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.delete(
-        `http://localhost:3000/course/${courseId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      // Use the API instance which already has the token in the headers
+      const response = await api.delete(`/course/${courseId}`);
 
       if (response.status === 200) {
         setCourses(courses.filter(course => course._id !== courseId));
@@ -87,7 +76,21 @@ const MyCourses = () => {
       }
     } catch (error) {
       console.error("Error deleting course:", error);
-      toast.error("Failed to delete course. Please try again.");
+
+      // Provide more specific error messages based on the error status
+      if (error.response) {
+        if (error.response.status === 403) {
+          toast.error("You are not authorized to delete this course. Only the course creator can delete it.");
+        } else if (error.response.status === 404) {
+          toast.error("Course not found. It may have been already deleted.");
+          // Remove the course from the local state if it's not found on the server
+          setCourses(courses.filter(course => course._id !== courseId));
+        } else {
+          toast.error(error.response.data?.message || "Failed to delete course. Please try again.");
+        }
+      } else {
+        toast.error("Network error. Please check your connection and try again.");
+      }
     } finally {
       setDeleteConfirm(null);
     }
@@ -97,19 +100,11 @@ const MyCourses = () => {
   const handlePublishCourse = async (courseId) => {
     try {
       setPublishingCourse(courseId);
-      const token = localStorage.getItem("token");
 
       console.log("Publishing course:", courseId);
 
-      const response = await axios.post(
-        `http://localhost:3000/course/${courseId}/publish`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      // Use the API instance which already has the token in the headers
+      const response = await api.post(`/course/${courseId}/publish`, {});
 
       if (response.status === 200) {
         // Get the updated course from the response

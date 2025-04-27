@@ -76,9 +76,34 @@ const ChallengeDetail = () => {
   };
 
   // Handle successful submission
-  const handleSubmitSuccess = () => {
+  const handleSubmitSuccess = (nextChallenge) => {
     toast.success('Challenge completed successfully!');
-    // Optionally navigate to another page or update UI
+
+    // If there's a next challenge, show a button to navigate to it
+    if (nextChallenge) {
+      // Create a button in the UI to navigate to the next challenge
+      const nextChallengeButton = document.createElement('div');
+      nextChallengeButton.className = 'fixed bottom-4 right-4 z-50';
+      nextChallengeButton.innerHTML = `
+        <button
+          class="bg-indigo-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 hover:bg-indigo-700 transition"
+          onclick="window.location.href='/edu/coding/challenge/${nextChallenge._id}'"
+        >
+          <span>Next Challenge: ${nextChallenge.title}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      `;
+
+      // Add the button to the body
+      document.body.appendChild(nextChallengeButton);
+
+      // Remove the button after 30 seconds
+      setTimeout(() => {
+        if (document.body.contains(nextChallengeButton)) {
+          document.body.removeChild(nextChallengeButton);
+        }
+      }, 30000);
+    }
   };
 
   if (loading) {

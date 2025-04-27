@@ -1,56 +1,170 @@
 [
-    { "input": "What is EDUverse?", "output": "EDUverse is an online learning platform offering courses across various fields like Programming, Design, Business, and Personal Development." },
-    { "input": "Who created EDUverse?", "output": "EDUverse was created by Team 'BROcode' from Adichunchanagiri Institute of Technology." },
-    { "input": "Can I enroll in multiple courses?", "output": "Yes, you can enroll in as many courses as you like on EDUverse." },
-    { "input": "Are courses on EDUverse free?", "output": "Some courses on EDUverse are free, while others require payment." },
-    { "input": "How to enroll in a course?", "output": "Go to the 'Courses' section, choose your desired course, and click on 'Enroll'." },
-    { "input": "What kind of courses are available?", "output": "Courses on Programming, Design, Business, and Personal Development are available on EDUverse." },
-    { "input": "Is there any certification?", "output": "Yes, many courses on EDUverse offer a certificate of completion." },
-    { "input": "How to contact support?", "output": "You can contact support by clicking on the 'Support' link at the bottom of the page." },
-    { "input": "Who are the team members of BROcode?", "output": "The team members are Sagar H D, KARAN S GOWDA, MADAN K, and AFNAN." },
-    { "input": "What programming courses do you offer?", "output": "We offer courses in languages like Python, Java, C++, Web Development, and more." },
-    { "input": "Do you provide mentorship?", "output": "Yes, EDUverse connects students with experienced mentors." },
-    { "input": "How to reset my password?", "output": "Go to 'Account Settings', click 'Reset Password' and follow the instructions." },
-    { "input": "Can I access EDUverse on mobile?", "output": "Yes, EDUverse is mobile-friendly and accessible through any browser." },
-    { "input": "Is there a mobile app for EDUverse?", "output": "Currently, EDUverse is available via web browsers; a mobile app is in development." },
-    { "input": "What makes EDUverse unique?", "output": "Our strong mentorship network and project-based courses make EDUverse stand out." },
-    { "input": "Do you offer internships?", "output": "Yes, we sometimes offer internships linked to certain project-based courses." },
-    { "input": "Where can I see my enrolled courses?", "output": "You can view them in the 'My Courses' section after logging in." },
-    { "input": "Can I unenroll from a course?", "output": "Yes, you can unenroll anytime from your 'My Courses' dashboard." },
-    { "input": "How to access course materials?", "output": "Once enrolled, all course materials will be available in the course dashboard." },
-    { "input": "Can I interact with mentors directly?", "output": "Yes, some courses include direct mentor interactions via chat or video call." },
-    { "input": "Are assignments graded?", "output": "Yes, assignments are graded and feedback is provided by mentors." },
-    { "input": "How to submit assignments?", "output": "Assignments can be submitted through your course dashboard." },
-    { "input": "Can I download course videos?", "output": "Currently, course videos are accessible online only; download feature is coming soon." },
-    { "input": "Is there a discussion forum?", "output": "Yes, we have community forums where learners can discuss topics." },
-    { "input": "What if I face a technical issue?", "output": "Please contact our support team through the 'Support' section immediately." },
-    { "input": "Do you have coding challenges?", "output": "Yes, EDUverse includes coding challenges and hackathons regularly." },
-    { "input": "How often are new courses added?", "output": "New courses are added every month." },
-    { "input": "Can I request a course?", "output": "Yes, you can suggest a course via our 'Suggest a Course' form." },
-    { "input": "Is there a refund policy?", "output": "Refunds are possible within 7 days of course purchase under certain conditions." },
-    { "input": "Where can I find free resources?", "output": "Check the 'Free Resources' section in our platform." },
-    { "input": "Are there live classes?", "output": "Yes, some courses offer live sessions with instructors." },
-    { "input": "What languages are the courses in?", "output": "Most courses are in English; we are expanding to other languages soon." },
-    { "input": "Is there a trial period?", "output": "Some premium courses offer a 7-day trial." },
-    { "input": "Do you provide scholarships?", "output": "Yes, deserving students can apply for scholarships." },
-    { "input": "Can I access old courses after completion?", "output": "Yes, completed courses remain accessible in your account." },
-    { "input": "What payment methods are accepted?", "output": "We accept credit/debit cards, UPI, and net banking." },
-    { "input": "Are group discounts available?", "output": "Yes, for group enrollments, special discounts are offered." },
-    { "input": "How do I update my profile?", "output": "Go to 'Profile Settings' and make the necessary changes." },
-    { "input": "Can I become a mentor?", "output": "Experienced professionals can apply to become mentors through our 'Join as Mentor' page." },
-    { "input": "Is there a feedback system?", "output": "Yes, you can provide course feedback after completion." },
-    { "input": "Are courses self-paced?", "output": "Most courses are self-paced unless otherwise mentioned." },
-    { "input": "How is progress tracked?", "output": "Your progress is automatically tracked on the platform." },
-    { "input": "What browsers are supported?", "output": "EDUverse works best on Chrome, Firefox, Safari, and Edge." },
-    { "input": "Can I gift a course?", "output": "Yes, you can gift a course to someone by purchasing a gift voucher." },
-    { "input": "How to redeem a voucher?", "output": "Enter your voucher code during checkout." },
-    { "input": "What is EDUverse Plus?", "output": "EDUverse Plus is a premium membership offering exclusive courses and perks." },
-    { "input": "Do you offer career guidance?", "output": "Yes, our mentors offer career guidance sessions." },
-    { "input": "Is there a newsletter?", "output": "Yes, you can subscribe to our newsletter for updates and offers." },
-    { "input": "Can I collaborate on projects?", "output": "Some courses offer collaborative project opportunities." },
-    { "input": "What age groups are eligible?", "output": "Anyone 13 years or older can join EDUverse." },
-    { "input": "Is prior knowledge needed?", "output": "Some beginner courses require no prior knowledge." },
-    { "input": "How can I give feedback on the platform?", "output": "You can submit feedback through the 'Contact Us' form." },
-    { "input": "Can I switch courses?", "output": "Switching is allowed within the refund period." }
-  ]
-  
+  {
+    "category": "General",
+    "items": [
+      { "input": "What is EDUverse?", "output": "EDUverse is an online learning platform offering courses across various fields like Programming, Design, Business, and Personal Development. It combines course learning with social networking, coding challenges, and project-based learning in one integrated platform." },
+      { "input": "Who created EDUverse?", "output": "EDUverse was created by Team 'BROcode' from Adichunchanagiri Institute of Technology." },
+      { "input": "Who are the team members of BROcode?", "output": "The team members are Sagar H D, KARAN S GOWDA, MADAN K, and AFNAN." },
+      { "input": "What makes EDUverse unique?", "output": "Our strong mentorship network, project-based courses, integrated coding challenges, and social learning hub make EDUverse stand out. We also offer direct mentor-student interactions, GitHub integration, facial recognition features, and daily coding streaks to keep you motivated." },
+      { "input": "How do I navigate the platform?", "output": "The main navigation is through the navbar at the top of the page. It contains links to Home, Courses, Mentors, Social Hub, Coding Challenges, and more. When logged in, you'll also see your profile image and username in the top-right corner, which gives you access to your personal menu." },
+      { "input": "What are the main features of EDUverse?", "output": "EDUverse offers: 1) Course learning with video content, 2) Social networking with other students and mentors, 3) Daily coding challenges with streak tracking, 4) GitHub integration to showcase your projects, 5) Facial recognition for enhanced security and search, 6) Mentor-student direct communication, and 7) Learning progress tracking." },
+      { "input": "What browsers are supported?", "output": "EDUverse works best on Chrome, Firefox, Safari, and Edge." },
+      { "input": "Can I access EDUverse on mobile?", "output": "Yes, EDUverse is mobile-friendly and accessible through any browser." },
+      { "input": "Is there a mobile app for EDUverse?", "output": "Currently, EDUverse is available via web browsers; a mobile app is in development." },
+      { "input": "How to contact support?", "output": "You can contact support by clicking on the 'Support' link at the bottom of the page." },
+      { "input": "What if I face a technical issue?", "output": "Please contact our support team through the 'Support' section immediately." },
+      { "input": "How can I give feedback on the platform?", "output": "You can submit feedback through the 'Contact Us' form." },
+      { "input": "Is there a newsletter?", "output": "Yes, you can subscribe to our newsletter for updates and offers." },
+      { "input": "What age groups are eligible?", "output": "Anyone 13 years or older can join EDUverse." },
+      { "input": "How do I get started with EDUverse?", "output": "To get started: 1) Sign up for an account, 2) Complete your profile, 3) Browse available courses, 4) Enroll in courses that interest you, 5) Explore the social hub to connect with other learners, and 6) Try the daily coding challenges to build your skills." },
+      { "input": "What should I do first on EDUverse?", "output": "After signing up, we recommend completing your profile, exploring the course catalog, and checking out the daily coding challenge to start building your streak." }
+    ]
+  },
+  {
+    "category": "Account and Profile",
+    "items": [
+      { "input": "How do I create an account?", "output": "Click on the 'Sign Up' button in the top-right corner of the homepage. Fill in your details, including email, username, and password. You can also register using facial recognition for enhanced security." },
+      { "input": "How do I log in?", "output": "Click on the 'Login' button in the top-right corner of the homepage. Enter your username/email and password. If you've set up facial recognition, you can also use that option for login." },
+      { "input": "How do I reset my password?", "output": "On the login page, click 'Forgot Password'. Enter your email address, and we'll send you a password reset link with an OTP verification." },
+      { "input": "How do I edit my profile?", "output": "After logging in, click on your username in the top-right corner, then select 'My Profile'. Click on the 'Edit Profile' button to update your information." },
+      { "input": "How do I change my profile picture?", "output": "Go to 'My Profile', click 'Edit Profile', then click on the profile image or the upload button to select a new photo." },
+      { "input": "What are the two types of accounts?", "output": "EDUverse offers two account types: Student accounts for learners and Mentor accounts for those who want to create and teach courses." },
+      { "input": "How do I switch between student and mentor mode?", "output": "During registration, you select your account type. If you need to change your account type later, please contact support." },
+      { "input": "How do I connect my GitHub account?", "output": "Go to your profile page, click on the 'Projects' tab, and then click on 'Connect GitHub'. You'll be prompted to authorize EDUverse to access your GitHub repositories." },
+      { "input": "What happens when I connect GitHub?", "output": "When you connect GitHub, your public repositories will be displayed in your profile's Projects section. This helps showcase your coding work to mentors and other students." },
+      { "input": "How do I set up facial recognition?", "output": "During signup, you'll have the option to enable facial recognition. Follow the on-screen instructions to scan your face. You can also set this up later in your profile security settings." },
+      { "input": "Is facial recognition mandatory?", "output": "No, facial recognition is optional. You can always use traditional username/password login." },
+      { "input": "How do I log out?", "output": "Click on your username in the top-right corner, then select 'Logout' from the dropdown menu." }
+    ]
+  },
+  {
+    "category": "Courses",
+    "items": [
+      { "input": "What kind of courses are available?", "output": "Courses on Programming, Design, Business, and Personal Development are available on EDUverse. Our most popular categories include Web Development, Data Science, Mobile App Development, UI/UX Design, and Digital Marketing." },
+      { "input": "What programming courses do you offer?", "output": "We offer courses in languages like Python, Java, C++, JavaScript, Web Development, Mobile App Development, Data Science, Machine Learning, and more. Each course includes video content, downloadable resources, and practical projects." },
+      { "input": "Are courses on EDUverse free?", "output": "Some courses on EDUverse are free, while others require payment. We have a mix of free introductory courses and premium in-depth courses. Free courses typically include basic content, while premium courses offer more comprehensive materials, direct mentor support, and certificates." },
+      { "input": "How to enroll in a course?", "output": "Go to the 'Courses' section, choose your desired course, and click on 'Enroll'. For free courses, you'll get immediate access. For paid courses, you'll be directed to the payment page first." },
+      { "input": "How do I find courses?", "output": "You can find courses in several ways: 1) Browse the 'Courses' section from the main navigation, 2) Use the search bar to search by keyword, topic, or instructor, 3) Filter courses by category, difficulty level, or price, or 4) Check the 'Recommended for You' section on your dashboard." },
+      { "input": "How do I access my enrolled courses?", "output": "After logging in, click on your username in the top-right corner, then select 'My Courses' from the dropdown menu. This will show all courses you've enrolled in." },
+      { "input": "How do I track my course progress?", "output": "When viewing an enrolled course, you'll see a progress bar indicating how much of the course you've completed. Each completed section will be marked with a checkmark." },
+      { "input": "What types of content are in courses?", "output": "Courses typically include video lectures, reading materials, downloadable resources, quizzes, assignments, and projects. Some courses also include live sessions with mentors." },
+      { "input": "How do I watch course videos?", "output": "Course videos are embedded directly in the course page. Simply click on a video to start playing it. Videos can be paused, rewound, and played at different speeds." },
+      { "input": "Can I download course materials?", "output": "Yes, most courses include downloadable resources like PDFs, code samples, and project files. Look for the download button next to each resource." },
+      { "input": "How do I complete a course?", "output": "To complete a course, you need to go through all the required content and pass any required assessments or projects. Once completed, you'll receive a completion certificate for eligible courses." },
+      { "input": "Can I leave a review for a course?", "output": "Yes, after completing a course, you'll be prompted to leave a rating and review. Your feedback helps other students and helps mentors improve their courses." },
+      { "input": "Can I enroll in multiple courses?", "output": "Yes, you can enroll in as many courses as you like on EDUverse." },
+      { "input": "Where can I see my enrolled courses?", "output": "You can view them in the 'My Courses' section after logging in." },
+      { "input": "Can I unenroll from a course?", "output": "Yes, you can unenroll anytime from your 'My Courses' dashboard." },
+      { "input": "How to access course materials?", "output": "Once enrolled, all course materials will be available in the course dashboard." },
+      { "input": "Can I download course videos?", "output": "Currently, course videos are accessible online only; download feature is coming soon." },
+      { "input": "Is there any certification?", "output": "Yes, many courses on EDUverse offer a certificate of completion." },
+      { "input": "Are courses self-paced?", "output": "Most courses are self-paced unless otherwise mentioned." },
+      { "input": "How is progress tracked?", "output": "Your progress is automatically tracked on the platform. You can see your completion percentage, quiz scores, and assignment grades in your course dashboard." },
+      { "input": "Are there live classes?", "output": "Yes, some courses offer live sessions with instructors." },
+      { "input": "What languages are the courses in?", "output": "Most courses are in English; we are expanding to other languages soon." },
+      { "input": "Is there a trial period?", "output": "Some premium courses offer a 7-day trial." },
+      { "input": "Can I access old courses after completion?", "output": "Yes, completed courses remain accessible in your account." },
+      { "input": "How often are new courses added?", "output": "New courses are added every month." },
+      { "input": "Can I request a course?", "output": "Yes, you can suggest a course via our 'Suggest a Course' form." },
+      { "input": "Can I switch courses?", "output": "Switching is allowed within the refund period." },
+      { "input": "Is prior knowledge needed?", "output": "Some beginner courses require no prior knowledge, while advanced courses may have prerequisites that are clearly mentioned in the course description." }
+    ]
+  },
+  {
+    "category": "Mentorship",
+    "items": [
+      { "input": "Do you provide mentorship?", "output": "Yes, EDUverse connects students with experienced mentors who guide them through their learning journey. Mentors are industry professionals who create courses, provide feedback on projects, and offer personalized guidance." },
+      { "input": "Can I interact with mentors directly?", "output": "Yes, courses include direct mentor interactions via the course chat system. You can ask questions, share your work, and receive personalized feedback from your course mentor." },
+      { "input": "How do I find mentors?", "output": "You can browse mentors in the 'Mentors' section accessible from the main navigation. You can filter mentors by expertise, experience level, and ratings to find someone who matches your learning needs." },
+      { "input": "How do I contact a mentor?", "output": "When enrolled in a course, you can message the mentor directly through the course chat interface. You can also view a mentor's profile and send them a message or follow them from there." },
+      { "input": "Can I become a mentor?", "output": "Experienced professionals can apply to become mentors by selecting 'Mentor' during signup or by converting their account through the profile settings. As a mentor, you'll need to verify your expertise and create quality educational content." },
+      { "input": "How do I create a course as a mentor?", "output": "After registering as a mentor, click on your username in the top-right corner, then select 'Create Course'. Follow the step-by-step process to add course details, upload content, and publish your course." },
+      { "input": "What can I add to my courses as a mentor?", "output": "As a mentor, you can add video lectures (both uploaded videos and YouTube links), text content, downloadable resources, quizzes, assignments, and project requirements to your courses." },
+      { "input": "How do I manage my courses as a mentor?", "output": "Go to your profile and select 'My Courses' to see all courses you've created. From there, you can edit course content, view enrolled students, respond to questions, and track course performance." },
+      { "input": "How do I publish a course?", "output": "After creating your course content, go to the course dashboard and click the 'Publish' button. Your course will be reviewed by our team before being made available to students." },
+      { "input": "Do you offer career guidance?", "output": "Yes, our mentors offer career guidance sessions to help students plan their educational and professional paths. You can book one-on-one sessions with mentors who specialize in your field of interest." },
+      { "input": "How are mentors rated?", "output": "Mentors receive ratings and reviews from students who have taken their courses. These ratings help maintain quality and help students choose the right mentors." },
+      { "input": "Can I follow a mentor?", "output": "Yes, you can follow mentors to stay updated on their new courses and educational content. Visit a mentor's profile and click the 'Follow' button." },
+      { "input": "How are mentors selected?", "output": "Mentors are selected based on their expertise, experience, teaching ability, and passion for education. They go through a thorough vetting process." },
+      { "input": "Can I choose my mentor?", "output": "For some premium courses, you can select from available mentors based on their expertise and schedule." },
+      { "input": "How often can I interact with mentors?", "output": "Interaction frequency depends on the course. Some courses offer weekly sessions, while others may have bi-weekly or monthly interactions." }
+    ]
+  },
+  {
+    "category": "Assignments and Assessments",
+    "items": [
+      { "input": "Are assignments graded?", "output": "Yes, assignments are graded and feedback is provided by mentors." },
+      { "input": "How to submit assignments?", "output": "Assignments can be submitted through your course dashboard." },
+      { "input": "What types of assessments are there?", "output": "We offer quizzes, coding challenges, project submissions, peer reviews, and final exams depending on the course." },
+      { "input": "Is there a deadline for assignments?", "output": "Self-paced courses have flexible deadlines, while structured courses have specific submission dates." },
+      { "input": "Can I resubmit an assignment?", "output": "Yes, most courses allow resubmission of assignments based on mentor feedback." },
+      { "input": "How are final grades calculated?", "output": "Final grades typically consider assignment scores, quiz results, project quality, and participation." }
+    ]
+  },
+  {
+    "category": "Social Hub and Community",
+    "items": [
+      { "input": "What is the Social Hub?", "output": "The Social Hub is EDUverse's social networking feature where students and mentors can share posts, showcase projects, follow each other, and engage with educational content. It's designed to create a community of learners who can support each other." },
+      { "input": "How do I access the Social Hub?", "output": "Click on 'Social Hub' in the main navigation bar to access this feature. You'll see a feed of posts from people you follow and educational content relevant to your interests." },
+      { "input": "How do I create a post in the Social Hub?", "output": "In the Social Hub, click the '+' button or 'Create Post' to share content. You can add text, images, and tags to your posts. You can categorize posts as general updates, projects, or skills to help others find your content." },
+      { "input": "How do I find people to follow?", "output": "The Social Hub suggests users based on your interests and courses. You can also search for users by name or use the advanced search feature with facial recognition to find specific people." },
+      { "input": "What is the facial recognition search in Social Hub?", "output": "The facial recognition search allows you to upload a photo to find users who match that face. This feature is useful for finding classmates or mentors you've met in person but don't remember their names." },
+      { "input": "How do I follow someone?", "output": "Visit a user's profile and click the 'Follow' button. Depending on their privacy settings, they may need to approve your follow request before you can see their posts." },
+      { "input": "How do I accept follow requests?", "output": "When someone sends you a follow request, you'll receive a notification. Go to your profile and click on 'Follow Requests' to accept or reject these requests." },
+      { "input": "How do I showcase my projects in the Social Hub?", "output": "Create a post and tag it as a 'Project'. You can also connect your GitHub account to automatically display your repositories in your profile's Projects section." },
+      { "input": "How do I share my skills?", "output": "Create a post and tag it as a 'Skill'. You can share tips, tutorials, or demonstrations of your skills to help others learn." },
+      { "input": "Can I message other users?", "output": "Yes, you can send direct messages to users you follow and who follow you back. Click on the message icon on their profile to start a conversation." },
+      { "input": "How do I comment on posts?", "output": "Click the comment icon below any post to leave a comment. You can also reply to other users' comments to create threaded discussions." },
+      { "input": "Can I like posts?", "output": "Yes, click the heart icon below any post to like it. This helps promote quality content in the community." },
+      { "input": "How do I report inappropriate content?", "output": "Click the three dots menu on any post or comment and select 'Report' to flag inappropriate content for our moderation team." },
+      { "input": "Are there community guidelines?", "output": "Yes, EDUverse has community guidelines that promote respectful, educational, and supportive interactions. All users are expected to follow these guidelines when participating in the Social Hub." },
+      { "input": "Can I share my projects with the community?", "output": "Yes, you can showcase your projects in the EDUverse social hub and get feedback from peers and mentors." }
+    ]
+  },
+  {
+    "category": "Coding Challenges",
+    "items": [
+      { "input": "Do you have coding challenges?", "output": "Yes, EDUverse includes coding challenges and hackathons regularly to help students practice their skills." },
+      { "input": "How do coding challenges work?", "output": "Coding challenges present programming problems that you solve in our integrated code editor. Your solutions are automatically evaluated for correctness and efficiency." },
+      { "input": "What programming languages are supported in coding challenges?", "output": "Our coding platform supports Python, Java, C++, JavaScript, and several other popular languages." },
+      { "input": "Are there competitive coding events?", "output": "Yes, we host monthly coding competitions where students can compete and win prizes." },
+      { "input": "How are coding challenges ranked?", "output": "Challenges are ranked by difficulty level from beginner to advanced. Your performance contributes to your overall ranking on the platform." },
+      { "input": "Can I suggest coding problems?", "output": "Yes, experienced users can submit problem ideas through the 'Suggest a Challenge' form." }
+    ]
+  },
+  {
+    "category": "Account and Profile",
+    "items": [
+      { "input": "How do I update my profile?", "output": "Go to 'Profile Settings' and make the necessary changes." },
+      { "input": "How to reset my password?", "output": "Go to 'Account Settings', click 'Reset Password' and follow the instructions." },
+      { "input": "Can I link my GitHub account?", "output": "Yes, you can connect your GitHub account to showcase your repositories and projects on your EDUverse profile." },
+      { "input": "How do I change my email address?", "output": "You can update your email in the 'Account Settings' section after verifying your identity." },
+      { "input": "Can I have multiple accounts?", "output": "We recommend having only one account per user to maintain a consistent learning record." },
+      { "input": "How to delete my account?", "output": "Account deletion can be requested through the 'Account Settings' page. Note that this action is permanent." }
+    ]
+  },
+  {
+    "category": "Payment and Pricing",
+    "items": [
+      { "input": "What payment methods are accepted?", "output": "We accept credit/debit cards, UPI, and net banking." },
+      { "input": "Is there a refund policy?", "output": "Refunds are possible within 7 days of course purchase under certain conditions." },
+      { "input": "Are group discounts available?", "output": "Yes, for group enrollments, special discounts are offered." },
+      { "input": "Can I gift a course?", "output": "Yes, you can gift a course to someone by purchasing a gift voucher." },
+      { "input": "How to redeem a voucher?", "output": "Enter your voucher code during checkout." },
+      { "input": "What is EDUverse Plus?", "output": "EDUverse Plus is a premium membership offering exclusive courses and perks." },
+      { "input": "Do you provide scholarships?", "output": "Yes, deserving students can apply for scholarships." },
+      { "input": "Are there any hidden fees?", "output": "No, all costs are transparently displayed before purchase. There are no hidden fees." },
+      { "input": "Do course prices include tax?", "output": "Course prices shown include all applicable taxes." }
+    ]
+  },
+  {
+    "category": "Career and Opportunities",
+    "items": [
+      { "input": "Do you offer internships?", "output": "Yes, we sometimes offer internships linked to certain project-based courses." },
+      { "input": "Are there job placement services?", "output": "Premium courses may include job placement assistance for top-performing students." },
+      { "input": "Do you have industry partnerships?", "output": "Yes, we partner with various companies to provide real-world projects and potential job opportunities." },
+      { "input": "Can I get a recommendation letter?", "output": "Outstanding students may receive recommendation letters from their mentors upon course completion." },
+      { "input": "Are there networking events?", "output": "We organize virtual and physical networking events where students can connect with industry professionals." }
+    ]
+  }
+]

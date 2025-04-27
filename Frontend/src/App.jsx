@@ -20,11 +20,11 @@ import Signup from "./components/edu/Signup";
 import FloatingChatbot from "./components/edu/FloatingChatbot";
 import ProfileSettings from "./components/edu/ProfileSettings";
 import EduProtectedRoute from "./components/edu/EduProtectedRoute";
-import CreateCourse from "./components/edu/CreateCourse";
+import { CreateCourse } from "./components/edu/courses";
 import { EditCourse } from "./components/edu/courses";
-import MyCourses from "./components/edu/MyCourses";
-import CourseView from "./components/edu/CourseView";
-import CoursesPage from "./components/edu/CoursesPage";
+import { MyCourses } from "./components/edu/courses";
+import { CourseView } from "./components/edu/courses";
+import { CoursesPage } from "./components/edu/courses";
 import AboutPage from "./components/edu/AboutPage";
 import MentorsPage from "./components/edu/MentorsPage";
 import MentorProfilePage from "./components/edu/MentorProfilePage";
@@ -35,6 +35,7 @@ import EduSocialHub from "./components/edu/EduSocialHub";
 import PostDetail from "./components/edu/PostDetail";
 import CodingDashboard from "./components/edu/coding/CodingDashboard";
 import ChallengeDetail from "./components/edu/coding/ChallengeDetail";
+import { LearningDashboard } from "./components/edu/learning";
 
 function App() {
   const dispatch = useDispatch();
@@ -140,6 +141,9 @@ function App() {
         <Route path="/coding" element={<CodingDashboard />} />
         <Route path="/coding/daily" element={<CodingDashboard />} />
         <Route path="/coding/leaderboard" element={<CodingDashboard />} />
+        <Route path="/learning" element={<EduProtectedRoute><LearningDashboard /></EduProtectedRoute>} />
+        <Route path="/learning/streak" element={<EduProtectedRoute><LearningDashboard /></EduProtectedRoute>} />
+        <Route path="/learning/stats" element={<EduProtectedRoute><LearningDashboard /></EduProtectedRoute>} />
 
         {/* Legacy routes */}
         <Route path="/edu/profile" element={<EduProtectedRoute><StudentProfile /></EduProtectedRoute>} />

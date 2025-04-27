@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Code, Github, Heart, MessageSquare, Share2, Bookmark, User } from 'lucide-react';
-import GitHubProjects from './GitHubProjects';
+import { BookOpen, Code, Github, Heart, MessageSquare, Share2, Bookmark, User, Flame } from 'lucide-react';
+import GitHubProjects from '../github/GitHubProjects';
+import ProjectStreak from '../github/ProjectStreak';
 import api from '../../AxiosInstance';
 import { toast } from 'react-toastify';
 
@@ -68,6 +69,9 @@ const ProjectsTab = ({
 
   return (
     <div className="space-y-6">
+      {/* Project Streak Section */}
+      <ProjectStreak userId={user._id} />
+
       {/* GitHub Projects Section */}
       {user.githubUsername ? (
         <div className="bg-white rounded-xl shadow-md overflow-hidden">

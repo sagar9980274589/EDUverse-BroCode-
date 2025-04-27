@@ -89,6 +89,52 @@ const userSchema = new mongoose.Schema({
     ref: 'Course'
   }],
 
+  // Project streak-related fields
+  projectStreak: {
+    type: Number,
+    default: 0
+  },
+  projectStreakLastUpdated: {
+    type: Date,
+    default: null
+  },
+  longestProjectStreak: {
+    type: Number,
+    default: 0
+  },
+  totalProjectContributions: {
+    type: Number,
+    default: 0
+  },
+  projectContributionHistory: {
+    type: Map,
+    of: Number,
+    default: {}
+  },
+
+  // Learning streak-related fields
+  learningStreak: {
+    type: Number,
+    default: 0
+  },
+  learningStreakLastUpdated: {
+    type: Date,
+    default: null
+  },
+  longestLearningStreak: {
+    type: Number,
+    default: 0
+  },
+  totalLearningActivities: {
+    type: Number,
+    default: 0
+  },
+  learningActivityHistory: {
+    type: Map,
+    of: Number,
+    default: {}
+  },
+
 }, { timestamps: true });
 
 export default mongoose.model("User", userSchema);

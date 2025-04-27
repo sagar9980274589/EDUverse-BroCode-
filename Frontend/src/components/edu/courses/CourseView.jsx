@@ -46,6 +46,32 @@ const CourseView = () => {
 
         if (response.status === 200) {
           setCourse(response.data.course);
+
+          // Record course view activity if user is logged in
+          if (user && user._id) {
+            try {
+              await axios.post(
+                'http://localhost:3000/learning/record-activity',
+                {
+                  activityType: 'course_view',
+                  courseId: response.data.course._id,
+                  contentId: null,
+                  contentTitle: null,
+                  activityData: {},
+                  activityDuration: 0,
+                  activityPoints: 1
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                  }
+                }
+              );
+            } catch (activityError) {
+              console.error("Error recording learning activity:", activityError);
+              // Don't show error to user as this is a background operation
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching course:", error);
@@ -59,7 +85,7 @@ const CourseView = () => {
     if (courseId) {
       fetchCourse();
     }
-  }, [courseId]);
+  }, [courseId, user]);
 
   // Toggle section expansion
   const toggleSection = (index) => {
@@ -274,7 +300,11 @@ const CourseView = () => {
       {/* Video Modal */}
       {showVideoModal && selectedVideo && (
         <VideoModal
-          video={selectedVideo}
+          video={{
+            ...selectedVideo,
+            courseId: courseId
+          }}
+          courseId={courseId}
           onClose={() => {
             setShowVideoModal(false);
             setSelectedVideo(null);
